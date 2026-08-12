@@ -1,119 +1,71 @@
-# Resume Screening AI Service — คู่มือสำหรับต่อ Backend
+# 📄 Intelligent Resume Screening & JD Matching System
+> ระบบคัดกรองและประเมินความเหมาะสมของเรซูเม่กับตำแหน่งงาน (Job Description) อัตโนมัติด้วยเทคนิค NLP, Pattern-based Skill Extraction และโมเดลภาษาขนาดใหญ่ (LLM)
 
-Service นี้คือ AI layer ที่วิเคราะห์ resume เทียบกับ job description แล้วคืนผลเป็น JSON
-รันแยกเป็นคนละ service จาก backend (Node.js/Next.js) — เรียกผ่าน HTTP เท่านั้น ไม่ต้องรู้ภาษา Python ก็ต่อได้
-
----
-
-## วิธีรัน service (ฝั่งคนที่ดูแล Python)
-
-```bash
-pip install -r requirements.txt
-
-# ตั้ง API key ก่อนรัน (อย่างน้อยต้องมี Gemini)
-export GEMINI_API_KEY="your_key_here"      # macOS/Linux
-$env:GEMINI_API_KEY="your_key_here"        # Windows PowerShell
-
-python -m uvicorn app:app --host 0.0.0.0 --port 8000 --reload
-```
-
-ทดสอบว่า service ทำงานไหม: เปิด `http://localhost:8000/docs`
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![spaCy](https://img.shields.io/badge/spaCy-09A3D5?style=for-the-badge&logo=spacy&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![OpenAI / LLM](https://img.shields.io/badge/LLM-Providers-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 ---
 
-## Endpoint ที่ backend เรียกใช้
-
-### `GET /health`
-เช็คว่า service ยังทำงานอยู่ไหม ก่อนยิง request จริง — เรียกก่อนทุกครั้งที่ backend เริ่มทำงานก็ได้
-
-**Response:**
-```json
-{ "status": "ok" }
-```
-
-### `POST /analyze`
-Endpoint หลัก — ส่ง resume + job description เข้าไป ได้ผลวิเคราะห์กลับมา
-
-**Request body:**
-```json
-{
-  "resume_text": "ข้อความ resume เต็ม (string, ห้ามว่าง)",
-  "job_text": "ข้อความ job description เต็ม (string, ห้ามว่าง)",
-  "model_provider": "gemini",
-  "model_name": null
-}
-```
-- `model_provider`: `"gemini"` | `"openai"` | `"claude"` — ไม่ใส่ = ใช้ `"gemini"` (ตัวเดียวที่พร้อมใช้งานตอนนี้)
-- `model_name`: ไม่ใส่ = ใช้ค่า default ของ provider นั้น (ปกติไม่ต้องใส่)
-
-**Response (200):**
-```json
-{
-  "matching_score": 78.5,
-  "matching_confidence": 0.57,
-  "skills": {
-    "hard": ["AWS", "PostgreSQL", "Python", "payment processing"],
-    "soft": ["Strong communication skills", "team leadership"]
-  },
-  "skill_extraction_confidence": 0.88,
-  "storytelling_score": "High",
-  "ai_reason": "...",
-  "storytelling_confidence": 0.95,
-  "storytelling_provider": "gemini",
-  "storytelling_latency_seconds": 2.1,
-  "overall_confidence": 0.78
-}
-```
-
-**Error responses:**
-| Code | หมายถึง | ตัวอย่าง |
-|---|---|---|
-| 400 | request ผิดรูปแบบ (เช่น text ว่าง หรือ provider พิมพ์ผิด) | `resume_text ห้ามว่าง` |
-| 503 | provider ที่เลือกยังไม่มี API key ตั้งไว้ในเครื่องที่รัน service | `ยังไม่ได้ตั้งค่า OPENAI_API_KEY` |
-| 500 | เกิด error ระหว่างวิเคราะห์ (เช่น LLM provider ล่ม/quota หมด) | รายละเอียด error แนบมาด้วย |
-
-**สำคัญ:** backend ควร handle 503/500 ด้วยการแจ้ง user ว่า "ระบบวิเคราะห์ขัดข้องชั่วคราว ลองใหม่อีกครั้ง" ไม่ควร retry รัวๆ เพราะบาง error (เช่น quota) จะไม่หายแค่ retry เฉยๆ
+## 📌 ภาพรวมโครงการ (Project Overview)
+โครงการนี้พัฒนาขึ้นเพื่อเพิ่มประสิทธิภาพในการคัดกรองผู้สมัครงานของฝ่ายบุคคล (HR) โดยระบบสามารถดึงข้อความจากไฟล์เรซูเม่ PDF, สกัดทักษะทั้ง Hard Skills และ Soft Skills อย่างแม่นยำด้วย Rule-based / Entity Ruler และนำมาจับคู่เปรียบเทียบความเข้ากันได้กับ Job Description (JD) ผ่านโมเดล AI เพื่อจัดอันดับและวิเคราะห์จุดเด่น-จุดด้อยของผู้สมัคร
 
 ---
 
-## ตัวอย่างเรียกจาก Node.js / Next.js
+## ✨ คุณสมบัติเด่น (Core Features)
+* **Automated PDF Text Extraction:** แปลงและสกัดข้อความจากเรซูเม่ไฟล์ PDF รองรับหลากหลายเลย์เอาต์ (`pdf_extraction.py`)
+* **Accurate Skill Extraction:** สกัดทักษะเฉพาะทาง (Hard Skills & Soft Skills) ด้วยพจนานุกรมคำศัพท์และ spaCy Entity Ruler (`rebuild_entity_ruler.py`, `cleaned_hard_final2.jsonl`, `cleaned_soft.jsonl`)
+* **Multi-LLM Provider Integration:** รองรับการประมวลผลและการจัดอันดับความเหมาะสมผ่านโมเดลภาษาขนาดใหญ่หลากหลายค่าย (`llm_providers.py`)
+* **Model Comparison & Evaluation:** มีระบบทดสอบและเปรียบเทียบประสิทธิภาพของแต่ละ Pipeline/Model (`compare_models.py`, `test_full_pipeline_v4.py`)
+* **Web/API Application:** พร้อมเชื่อมต่อใช้งานจริงผ่าน Backend API (`app.py`)
 
-```javascript
-// app/api/analyze/route.js
-export async function POST(req) {
-  const { resumeText, jobText } = await req.json();
+---
 
-  const res = await fetch('http://localhost:8000/analyze', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      resume_text: resumeText,
-      job_text: jobText,
-      model_provider: 'gemini'
-    })
-  });
+## 🛠️ โครงสร้างไฟล์ในโปรเจกต์ (Project Structure)
 
-  if (!res.ok) {
-    const err = await res.json();
-    return Response.json({ error: err.detail }, { status: res.status });
-  }
-
-  const result = await res.json();
-  // TODO: บันทึก result ลง MySQL ตรงนี้ก่อนส่งกลับ frontend
-  return Response.json(result);
-}
+```text
+├── app.py                          # สคริปต์หลักของแอปพลิเคชัน / API Server
+├── pdf_extraction.py               # ระบบสกัดข้อความจากเอกสาร PDF
+├── llm_providers.py                # ตัวเชื่อมต่อและจัดการโมเดล LLM
+├── clean_skill_dictionary.py       # สคริปต์ทำความสะอาดและจัดกลุ่มคำศัพท์ทักษะ
+├── rebuild_entity_ruler.py         # สคริปต์สร้าง Rules สำหรับโมเดล Entity Extraction
+├── compare_models.py               # สคริปต์เปรียบเทียบประสิทธิภาพโมเดล
+├── test_full_pipeline_v4.py        # สคริปต์ทดสอบกระบวนการทำงานตั้งแต่ต้นจนจบ (E2E Test)
+├── modelname.py                    # กำหนดค่าตัวแปรและชื่อโมเดลที่ใช้งาน
+├── cleaned_hard_final2.jsonl       # พจนานุกรม Hard Skills (Pattern Rules)
+├── cleaned_soft.jsonl              # พจนานุกรม Soft Skills (Pattern Rules)
+├── requirements.txt                # รายการไลบรารี Dependencies ที่จำเป็น
+├── .env.example                    # ไฟล์ตัวอย่างสำหรับการตั้งค่า API Key
+└── README.md                       # เอกสารอธิบายโครงการ
 ```
 
----
+🚀 ขั้นตอนการติดตั้งและเริ่มต้นใช้งาน (Getting Started)
+1. ติดตั้ง Dependencies```
+Bash
+git clone [https://github.com/Kira101111010110/intelligent-resume-screening-system.git](https://github.com/Kira101111010110/intelligent-resume-screening-system.git)
+cd intelligent-resume-screening-system
+pip install -r requirements.txt```
+2. ตั้งค่า Environment Variables
+สร้างไฟล์ .env จาก .env.example แล้วระบุ API Key ของ LLM ที่ต้องการใช้งาน:
+```
+Bash
+cp .env.example .env
+ข้อมูลโค้ด
+OPENAI_API_KEY=your_api_key_here
+```
 
-## CORS
+3. เตรียมชุดกฎของโมเดลสกัดสกิล (Build Entity Ruler)```
+Bash
+python rebuild_entity_ruler.py```
+4. รันระบบหรือรันทดสอบ Pipeline
+รันทดสอบ Full Pipeline:
+```
 
-Service เปิด CORS ให้ origin `http://localhost:3000` (ค่า default ของ Next.js dev) ไว้แล้ว
-ถ้า frontend รันคนละพอร์ต หรือตอน deploy จริงใช้ domain อื่น ต้องแก้ใน `app.py` ตรง `allow_origins`
-
----
-
-## ยังไม่รองรับตอนนี้
-
-- `model_provider: "openai"` และ `"claude"` — โครงโค้ดพร้อมแล้ว แต่ยังไม่มี API key มาทดสอบจริง ถ้าเรียกตอนนี้จะได้ 503 กลับมา
-- ไม่มี authentication บน endpoint เลย (ใครก็ยิงเข้ามาได้) — ถ้าจะขึ้น production ต้องเพิ่ม API key/token ตรวจสอบก่อนใช้งาน
+Bash
+python test_full_pipeline_v4.py
+```
+เปิดใช้งานแอปพลิเคชันหลัก:
+```
+Bash
+python app.py
