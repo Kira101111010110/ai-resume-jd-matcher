@@ -1,0 +1,39 @@
+อนุชา สถาปนิกระบบ
+Software Architect
+
+แนะนำตัว
+สถาปนิกซอฟต์แวร์ที่มีประสบการณ์ 12 ปีในการออกแบบระบบขนาดใหญ่ ผ่านการทำงานทั้งสาย Fintech, E-commerce และ Enterprise Software เชี่ยวชาญการออกแบบสถาปัตยกรรมแบบ Microservices และการนำทีมทางเทคนิค
+
+ประสบการณ์ทำงาน
+
+บริษัท ฟินเทคชั้นนำ จำกัด — Software Architect (2563 - ปัจจุบัน)
+- นำทีมออกแบบระบบใหม่ทั้งหมดจาก Monolithic เป็น Microservices เพื่อรองรับผู้ใช้งานที่เติบโตจาก 100,000 เป็น 2,000,000 คนภายใน 2 ปี
+- ระบบเดิมล่มบ่อยช่วง peak time เฉลี่ยเดือนละ 3-4 ครั้ง ส่งผลกระทบต่อธุรกรรมทางการเงินของลูกค้าโดยตรง
+- ออกแบบระบบใหม่โดยแยก service ตาม business domain ใช้ event-driven architecture ผ่าน Kafka และเพิ่มระบบ circuit breaker
+- ผลลัพธ์: ระบบล่มเหลือ 0 ครั้งในรอบ 18 เดือนที่ผ่านมา รองรับ transaction เพิ่มขึ้น 20 เท่าโดยไม่ต้องเพิ่ม server แบบเชิงเส้น
+- นำทีมวิศวกร 15 คน แบ่งเป็น 3 squad ดูแลงานคนละ domain
+
+บริษัท อีคอมเมิร์ซรายใหญ่ จำกัด — Senior Backend Engineer / Tech Lead (2559 - 2563)
+- นำทีม 6 คนพัฒนาระบบตะกร้าสินค้าและ checkout ใหม่ทั้งหมดในช่วง Double Day Sale
+- ระบบเดิมรองรับ concurrent user ได้ไม่เกิน 5,000 คน ทำให้เว็บล่มทุกครั้งที่มีแคมเปญใหญ่
+- ปรับสถาปัตยกรรมเป็น horizontal scaling พร้อมระบบ queue สำหรับจัดการ order
+- ผลลัพธ์: รองรับ concurrent user ได้ถึง 80,000 คนในแคมเปญ 11.11 โดยไม่มีระบบล่ม ยอดขายวันเดียวทำสถิติสูงสุดของบริษัท
+
+บริษัท ซอฟต์แวร์เอนเตอร์ไพรส์ จำกัด — Software Engineer (2555 - 2559)
+- พัฒนาระบบ ERP สำหรับลูกค้าองค์กรขนาดกลาง-ใหญ่
+- ดูแล module บัญชีและคลังสินค้า
+
+ทักษะทางเทคนิค
+Java, Go, Python, Kubernetes, Kafka, AWS, GCP, Terraform, PostgreSQL, Redis, gRPC, Domain-Driven Design, Event-Driven Architecture, System Design, Microservices, CI/CD
+
+การเป็นวิทยากร
+บรรยายหัวข้อ "Scaling Microservices at Fintech Scale" งาน Tech Conference ประเทศไทย (2567)
+เขียนบทความเทคนิคเผยแพร่บน Medium มากกว่า 20 บทความ
+
+การศึกษา
+ปริญญาโท วิศวกรรมซอฟต์แวร์ จุฬาลงกรณ์มหาวิทยาลัย (2555)
+ปริญญาตรี วิศวกรรมคอมพิวเตอร์ มหาวิทยาลัยเกษตรศาสตร์ (2553)
+
+ใบรับรอง
+AWS Certified Solutions Architect - Professional
+Certified Kubernetes Administrator (CKA)

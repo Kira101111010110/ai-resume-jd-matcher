@@ -1,0 +1,22 @@
+ธนกร พัฒนกิจ
+Senior Software Engineer
+
+ทักษะทางเทคนิค
+Java, Spring Boot, Microservices, Kubernetes, AWS, Docker, Jenkins, CI/CD, MySQL, MongoDB, Kafka, GraphQL, Terraform, Git, Agile, Scrum
+
+ประสบการณ์ทำงาน
+บริษัท เอ็นเตอร์ไพรส์ ซอฟต์แวร์ จำกัด (2560 - ปัจจุบัน)
+ตำแหน่ง Senior Software Engineer
+- พัฒนาระบบ Microservices
+- ดูแล Infrastructure บน AWS
+- เขียน Unit Test และ Integration Test
+- ทำ Code Review ให้ทีม
+- เข้าร่วมประชุม Sprint Planning ทุกสัปดาห์
+
+บริษัท ซอฟต์แวร์เฮาส์ จำกัด (2559 - 2560)
+ตำแหน่ง Software Engineer
+- พัฒนา Web Application ด้วย Java
+- ดูแลฐานข้อมูล MySQL
+
+การศึกษา
+ปริญญาตรี วิทยาการคอมพิวเตอร์ มหาวิทยาลัยเชียงใหม่ (2559)

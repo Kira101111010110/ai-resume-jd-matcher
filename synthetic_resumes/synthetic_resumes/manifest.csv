@@ -1,0 +1,19 @@
+﻿id,field,level,style_note,txt_path,pdf_path,word_count
+01_it_junior_high_storytelling,IT - Software Developer,Junior (1-2 ปี),Storytelling สูง (มี Problem-Action-Result ชัดเจน),txt/01_it_junior_high_storytelling.txt,pdf/01_it_junior_high_storytelling.pdf,82
+02_it_senior_keyword_heavy,IT - Software Developer,Senior (7+ ปี),Storytelling ต่ำ (list keyword ล้วน ไม่มี PAR),txt/02_it_senior_keyword_heavy.txt,pdf/02_it_senior_keyword_heavy.pdf,83
+03_it_data_analyst_medium,IT - Data Analyst,Mid (3-4 ปี),Storytelling ปานกลาง (มีตัวเลขบ้าง แต่ไม่ครบ PAR ทุกจุด),txt/03_it_data_analyst_medium.txt,pdf/03_it_data_analyst_medium.pdf,57
+04_accounting_entry_high_storytelling,Accounting,Entry (จบใหม่ - 1 ปี),Storytelling สูง,txt/04_accounting_entry_high_storytelling.txt,pdf/04_accounting_entry_high_storytelling.pdf,53
+05_accounting_senior_keyword,Accounting,Senior (8+ ปี),Storytelling ต่ำ (list หน้าที่ ไม่มีผลลัพธ์เชิงตัวเลข),txt/05_accounting_senior_keyword.txt,pdf/05_accounting_senior_keyword.pdf,50
+06_marketing_mid_high_storytelling,Marketing,Mid (4-5 ปี),Storytelling สูง (ตัวเลขผลลัพธ์ชัดเจน),txt/06_marketing_mid_high_storytelling.txt,pdf/06_marketing_mid_high_storytelling.pdf,76
+07_marketing_entry_short_edge_case,Marketing,Entry (จบใหม่),สั้นมาก (edge case — ข้อมูลน้อย),txt/07_marketing_entry_short_edge_case.txt,pdf/07_marketing_entry_short_edge_case.pdf,18
+08_sales_mid_high_storytelling,Sales,Mid (5 ปี),Storytelling สูง (ตัวเลขยอดขายชัดเจน),txt/08_sales_mid_high_storytelling.txt,pdf/08_sales_mid_high_storytelling.pdf,57
+09_sales_entry_keyword,Sales,Entry (1 ปี),Storytelling ต่ำ,txt/09_sales_entry_keyword.txt,pdf/09_sales_entry_keyword.pdf,30
+10_customer_service_entry_short,Customer Service,Entry,สั้น เรียบง่าย,txt/10_customer_service_entry_short.txt,pdf/10_customer_service_entry_short.pdf,26
+11_hr_mid_high_storytelling,Human Resources,Mid (4 ปี),Storytelling สูง,txt/11_hr_mid_high_storytelling.txt,pdf/11_hr_mid_high_storytelling.pdf,66
+12_mech_engineer_senior_keyword,Mechanical Engineering,Senior (9 ปี),"Storytelling ต่ำ, เทคนิคเข้มข้น",txt/12_mech_engineer_senior_keyword.txt,pdf/12_mech_engineer_senior_keyword.pdf,53
+13_career_change_accounting_to_it,IT - Career Change (จากบัญชี),Entry ในสายใหม่,Career-change edge case,txt/13_career_change_accounting_to_it.txt,pdf/13_career_change_accounting_to_it.pdf,65
+14_career_change_teacher_to_hr,Human Resources - Career Change (จากครู),Entry ในสายใหม่,Career-change edge case,txt/14_career_change_teacher_to_hr.txt,pdf/14_career_change_teacher_to_hr.pdf,41
+15_it_very_long_senior,IT - Software Architect,Senior มาก (12+ ปี),ยาวมาก (edge case — หลายหน้า),txt/15_it_very_long_senior.txt,pdf/15_it_very_long_senior.pdf,207
+16_fresh_grad_almost_no_experience_edge_case,IT - Software Developer (จบใหม่),Entry (ไม่มีประสบการณ์ทำงาน),"สั้นมาก, แทบไม่มีประสบการณ์ (edge case)",txt/16_fresh_grad_almost_no_experience_edge_case.txt,pdf/16_fresh_grad_almost_no_experience_edge_case.pdf,22
+17_graphic_design_mixed_thai_english,Graphic Design,Mid (3 ปี),ผสมไทย-อังกฤษ ปกติ,txt/17_graphic_design_mixed_thai_english.txt,pdf/17_graphic_design_mixed_thai_english.pdf,98
+18_finance_analyst_high_storytelling,Finance - Investment Analyst,Mid (4 ปี),Storytelling สูง,txt/18_finance_analyst_high_storytelling.txt,pdf/18_finance_analyst_high_storytelling.pdf,54
