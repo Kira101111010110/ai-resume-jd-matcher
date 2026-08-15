@@ -13,7 +13,7 @@ Junior Software Developer
 - ได้รับมอบหมายให้ดูแลระบบ payment gateway ทั้งหมด ออกแบบระบบ retry mechanism ที่ทำให้อัตราความสำเร็จของการชำระเงินเพิ่มจาก 92% เป็น 99.2%
 
 ทักษะ
-Python, Node.js, PostgreSQL, Redis, Docker, Git, RESTful API design
+Python, Node.js, PostgreSQL, Redis, Docker, Git, RESTful API design, communication, teamwork
 
 การศึกษา
 ปริญญาตรี วิศวกรรมคอมพิวเตอร์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี (2565)
