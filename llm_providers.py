@@ -9,6 +9,7 @@ Layer กลางสำหรับเรียก LLM หลายเจ้า
 import os
 import json
 import time
+import re
 from dotenv import load_dotenv
  
 load_dotenv()  # อ่านค่าจากไฟล์ .env เข้ามาเป็น environment variable ให้อัตโนมัติ
@@ -36,9 +37,20 @@ def _build_prompt(resume_text, job_text):
     return STORYTELLING_PROMPT_TEMPLATE.format(resume_text=resume_text, job_line=job_line)
 
 
+def _strip_markdown_fence(text: str) -> str:
+    """ลอก ```json ... ``` หรือ ``` ... ``` ที่บางเจ้า (โดยเฉพาะ Claude) ชอบห่อ JSON ไว้
+    ก่อนส่งเข้า json.loads() เพราะไม่งั้นจะ parse fail ทั้งที่เนื้อหาข้างในถูกต้อง"""
+    text = text.strip()
+    if text.startswith("```"):
+        text = re.sub(r'^```(?:json)?\s*', '', text)
+        text = re.sub(r'\s*```$', '', text)
+    return text.strip()
+
+
 def _parse_json_response(raw_text):
+    cleaned = _strip_markdown_fence(raw_text)
     try:
-        result = json.loads(raw_text)
+        result = json.loads(cleaned)
         result.setdefault("confidence", 0.5)
         result["json_valid"] = True
         return result
@@ -98,7 +110,7 @@ def analyze_with_openai(resume_text, job_text, model_name="gpt-4o-mini"):
 # หมายเหตุ: Claude ไม่มี JSON mode บังคับแบบ Gemini/OpenAI ต้องกำชับใน prompt เอง
 # และเช็คชื่อโมเดลล่าสุดจาก https://docs.claude.com ก่อนใช้จริง เผื่อมีรุ่นใหม่กว่านี้
 # ============================================
-def analyze_with_claude(resume_text, job_text, model_name="claude-sonnet-4-5"):
+def analyze_with_claude(resume_text, job_text, model_name="claude-sonnet-5"):
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
         raise RuntimeError("ยังไม่ได้ตั้งค่า ANTHROPIC_API_KEY — ต้องมี key ก่อนถึงจะเรียกเจ้านี้ได้")
@@ -109,13 +121,16 @@ def analyze_with_claude(resume_text, job_text, model_name="claude-sonnet-4-5"):
 
     response = client.messages.create(
         model=model_name,
-        max_tokens=1000,
-        temperature=0.3,
+        max_tokens=4000,
         messages=[{"role": "user", "content": prompt}]
     )
-    raw_text = response.content[0].text
-    return _parse_json_response(raw_text)
 
+    # response.content อาจมีหลาย block (ThinkingBlock + TextBlock)
+    # ต้องเลือกเฉพาะ block ที่เป็น text จริงๆ ไม่ใช่หยิบ index [0] ตรงๆ
+    raw_text = next(
+        block.text for block in response.content if block.type == "text"
+    )
+    return _parse_json_response(raw_text)
 
 # ============================================
 # Dispatcher กลาง — full_analysis_pipeline เรียกผ่านตัวนี้ตัวเดียว
