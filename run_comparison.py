@@ -79,9 +79,10 @@ def main():
 
     fieldnames = [
         "resume_id", "field", "level", "job_id", "provider", "model_name",
-        "matching_score", "hard_skills", "soft_skills",
-        "storytelling_score", "ai_reason", "confidence_score",
-        "storytelling_latency_seconds", "error",
+        "matching_score", "matching_confidence",
+        "hard_skills", "soft_skills", "skill_extraction_confidence",
+        "storytelling_score", "ai_reason", "storytelling_confidence",
+        "storytelling_latency_seconds", "overall_confidence", "error",
     ]
 
     run_count = 0
@@ -116,18 +117,25 @@ def main():
                             model_name=MODEL_NAMES[provider],
                         )
                         row["matching_score"] = result.get("matching_score")
+                        row["matching_confidence"] = result.get("matching_confidence")
                         row["hard_skills"] = "; ".join(
                             result.get("skills", {}).get("hard", [])
                         )
                         row["soft_skills"] = "; ".join(
                             result.get("skills", {}).get("soft", [])
                         )
+                        row["skill_extraction_confidence"] = result.get(
+                            "skill_extraction_confidence"
+                        )
                         row["storytelling_score"] = result.get("storytelling_score")
                         row["ai_reason"] = result.get("ai_reason")
-                        row["confidence_score"] = result.get("confidence_score")
+                        # แก้บั๊ก: ของเดิมดึง "confidence_score" ซึ่งไม่มี key นี้จริงใน pipeline
+                        # key จริงคือ "storytelling_confidence" ตามที่ full_analysis_pipeline คืนค่า
+                        row["storytelling_confidence"] = result.get("storytelling_confidence")
                         row["storytelling_latency_seconds"] = result.get(
                             "storytelling_latency_seconds"
                         )
+                        row["overall_confidence"] = result.get("overall_confidence")
                         print("OK")
                     except Exception as e:
                         error_count += 1
