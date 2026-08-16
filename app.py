@@ -40,14 +40,30 @@ app.add_middleware(
 
 @app.on_event("startup")
 def check_config():
-    if not os.environ.get("GEMINI_API_KEY"):
-        logger.warning(
-            "⚠️  ไม่พบ GEMINI_API_KEY ใน environment variable — "
-            "endpoint /analyze จะ error ทันทีเมื่อมี request เข้ามา "
-            "ตั้งค่าด้วย: $env:GEMINI_API_KEY=\"your_key_here\" ก่อนรัน uvicorn"
-        )
+    # เช็คครบทั้ง 3 ค่าย เพราะ /analyze รองรับ model_provider ได้ทั้ง gemini/openai/claude
+    # (ไม่ error หยุด server แค่ warning ไว้ก่อน เผื่อบาง provider ยังไม่ได้ใช้จริง)
+    provider_env_keys = {
+        "gemini": "GEMINI_API_KEY",
+        "openai": "OPENAI_API_KEY",
+        "claude": "ANTHROPIC_API_KEY",
+    }
+
+    available_providers = []
+    for provider, env_key in provider_env_keys.items():
+        if os.environ.get(env_key):
+            logger.info(f"✅ พบ {env_key} แล้ว (provider: {provider})")
+            available_providers.append(provider)
+        else:
+            logger.warning(
+                f"⚠️  ไม่พบ {env_key} ใน environment variable — "
+                f"เรียก /analyze ด้วย model_provider=\"{provider}\" จะ error ทันที "
+                f"(ตั้งค่าใน .env: {env_key}=your_key_here)"
+            )
+
+    if not available_providers:
+        logger.warning("⚠️  ยังไม่มี provider ไหนพร้อมใช้งานเลย — /analyze จะ error ทุก request")
     else:
-        logger.info("✅ พบ GEMINI_API_KEY แล้ว")
+        logger.info(f"พร้อมใช้งาน {len(available_providers)}/3 provider: {available_providers}")
 
 
 @app.get("/")
