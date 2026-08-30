@@ -108,6 +108,7 @@ def full_analysis_pipeline(resume_text, job_text, model_provider="gemini", model
 
         "storytelling_score": storytelling_result.get("storytelling_score"),
         "ai_reason": storytelling_result.get("ai_reason"),
+        "specific_strengths": storytelling_result.get("specific_strengths"),
         "storytelling_confidence": storytelling_confidence,
         "storytelling_provider": storytelling_result.get("provider"),
         "storytelling_latency_seconds": storytelling_result.get("latency_seconds"),
