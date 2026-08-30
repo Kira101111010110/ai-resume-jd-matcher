@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()  # อ่านค่าจากไฟล์ .env เข้ามาเป็น environment variable ให้อัตโนมัติ
 
 STORYTELLING_PROMPT_TEMPLATE = """วิเคราะห์ resume ต่อไปนี้ในแง่การเล่าเรื่องแบบมืออาชีพ (Problem → Action → Result)
+และประเมินความเหมาะสมกับตำแหน่งงานที่สมัคร (ถ้ามีระบุ Job Description ด้านล่าง)
 
 Resume:
 {resume_text}
@@ -28,6 +29,7 @@ Resume:
   "has_quantified_results": true หรือ false,
   "strengths": ["จุดแข็ง 1", "จุดแข็ง 2"],
   "weaknesses": ["จุดที่ควรปรับปรุง 1"],
+  "specific_strengths": "ถ้ามี Job Description ให้ประเมินว่าผู้สมัครเหมาะกับตำแหน่งนี้แค่ไหน โดยอ้างอิงจุดที่ตรงกันจริงระหว่าง resume กับ JD (ทักษะ/ประสบการณ์/ผลงาน) เป็นภาษาไทย 2-3 ประโยค แต่ถ้าไม่มี Job Description หรือ resume ไม่เกี่ยวข้องกับ JD เลย ให้บอกแทนว่าผู้สมัครมีจุดเด่นพิเศษอะไรที่น่าสนใจโดยไม่อิงกับตำแหน่งนี้ เช่น ทักษะหายาก ผลงานโดดเด่น หรือ certification พิเศษ",
   "confidence": ตัวเลข 0.0 ถึง 1.0 แสดงความมั่นใจของคุณเองในการวิเคราะห์นี้
 }}"""
 
@@ -52,12 +54,14 @@ def _parse_json_response(raw_text):
     try:
         result = json.loads(cleaned)
         result.setdefault("confidence", 0.5)
+        result.setdefault("specific_strengths", None)
         result["json_valid"] = True
         return result
     except json.JSONDecodeError:
         return {
             "storytelling_score": None,
             "ai_reason": None,
+            "specific_strengths": None,
             "confidence": 0.0,
             "json_valid": False,
             "raw_response": raw_text
@@ -87,7 +91,7 @@ def analyze_with_gemini(resume_text, job_text, model_name="gemini-3.6-flash"):
 # ============================================
 # OpenAI (โครงพร้อม รอ API key มาทดสอบจริง)
 # ============================================
-def analyze_with_openai(resume_text, job_text, model_name="gpt-4o-mini"):
+def analyze_with_openai(resume_text, job_text, model_name="gpt-5.6-luna"):
     api_key = os.environ.get("OPENAI_API_KEY", "")
     if not api_key:
         raise RuntimeError("ยังไม่ได้ตั้งค่า OPENAI_API_KEY — ต้องมี key ก่อนถึงจะเรียกเจ้านี้ได้")
@@ -99,7 +103,6 @@ def analyze_with_openai(resume_text, job_text, model_name="gpt-4o-mini"):
     response = client.chat.completions.create(
         model=model_name,
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
         response_format={"type": "json_object"}
     )
     return _parse_json_response(response.choices[0].message.content)
