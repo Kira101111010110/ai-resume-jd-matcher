@@ -86,6 +86,7 @@ class AnalyzeResponse(BaseModel):
     skill_extraction_confidence: float
     storytelling_score: str | None
     ai_reason: str | None
+    specific_strengths: str | None
     storytelling_confidence: float
     storytelling_provider: str | None
     storytelling_latency_seconds: float | None
