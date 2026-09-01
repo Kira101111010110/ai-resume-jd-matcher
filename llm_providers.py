@@ -22,6 +22,15 @@ Resume:
 
 {job_line}
 
+เกณฑ์การประเมิน faculty_match (คณะ/สาขาที่จบ เทียบกับที่ JD ต้องการ):
+- "ตรง" = สาขาตรงกันชัดเจนหรือเป็นสาขาเดียวกัน
+- "ใกล้เคียง" = สาขาที่เกี่ยวข้องกันแต่ไม่ตรงเป๊ะ (เช่น วิศวกรรมคอมพิวเตอร์ กับ วิทยาการคอมพิวเตอร์)
+- "ไม่ตรง" = คนละสายกันชัดเจน (เช่น สายการเงิน กับ สายวิศวกรรม)
+- "ไม่ระบุ" = JD ไม่ได้ระบุคณะที่ต้องการ หรือ resume ไม่ได้ระบุคณะ/สาขาที่จบ
+
+สำคัญมาก: ต้องตอบ JSON ให้ครบทุก key ด้านล่างนี้เสมอ ห้ามละเว้น key ใดแม้จะไม่มีข้อมูล
+(ถ้าไม่มีข้อมูลให้ใส่ "ไม่ระบุ" หรือ null ตามชนิดของ key นั้น ไม่ใช่ตัดทิ้งทั้ง key)
+
 ตอบเป็น JSON เท่านั้น ในรูปแบบนี้:
 {{
   "storytelling_score": "High" หรือ "Medium" หรือ "Low",
@@ -29,7 +38,9 @@ Resume:
   "has_quantified_results": true หรือ false,
   "strengths": ["จุดแข็ง 1", "จุดแข็ง 2"],
   "weaknesses": ["จุดที่ควรปรับปรุง 1"],
-  "specific_strengths": "ถ้ามี Job Description ให้ประเมินว่าผู้สมัครเหมาะกับตำแหน่งนี้แค่ไหน โดยอ้างอิงจุดที่ตรงกันจริงระหว่าง resume กับ JD (ทักษะ/ประสบการณ์/ผลงาน) เป็นภาษาไทย 2-3 ประโยค แต่ถ้าไม่มี Job Description หรือ resume ไม่เกี่ยวข้องกับ JD เลย ให้บอกแทนว่าผู้สมัครมีจุดเด่นพิเศษอะไรที่น่าสนใจโดยไม่อิงกับตำแหน่งนี้ เช่น ทักษะหายาก ผลงานโดดเด่น หรือ certification พิเศษ",
+  "specific_strengths": "ถ้ามี Job Description ให้ประเมินว่าผู้สมัครเหมาะกับตำแหน่งนี้แค่ไหน โดยอ้างอิงจุดที่ตรงกันจริงระหว่าง resume กับ JD (ทักษะ/ประสบการณ์/ผลงาน) เป็นภาษาไทย 2-3 ประโยค แต่ถ้าไม่มี Job Description หรือ resume ไม่เกี่ยวข้องกับ JD เลย ให้บอกแทนว่าผู้สมัครมีจุดเด่นพิเศษอะไรที่น่าสนใจโดยไม่อิงกับตำแหน่งนี้",
+  "faculty_status": "ตรง หรือ ใกล้เคียง หรือ ไม่ตรง หรือ ไม่ระบุ ตามเกณฑ์ด้านบน",
+  "faculty_comment": "อธิบายสั้นๆ ภาษาไทย 1-2 ประโยค ว่าทำไมถึงให้ faculty_status นี้",
   "confidence": ตัวเลข 0.0 ถึง 1.0 แสดงความมั่นใจของคุณเองในการวิเคราะห์นี้
 }}"""
 
@@ -55,6 +66,8 @@ def _parse_json_response(raw_text):
         result = json.loads(cleaned)
         result.setdefault("confidence", 0.5)
         result.setdefault("specific_strengths", None)
+        result.setdefault("faculty_status", "ไม่ระบุ")
+        result.setdefault("faculty_comment", None)
         result["json_valid"] = True
         return result
     except json.JSONDecodeError:
@@ -62,6 +75,8 @@ def _parse_json_response(raw_text):
             "storytelling_score": None,
             "ai_reason": None,
             "specific_strengths": None,
+            "faculty_status": "ไม่ระบุ",
+            "faculty_comment": None,
             "confidence": 0.0,
             "json_valid": False,
             "raw_response": raw_text
