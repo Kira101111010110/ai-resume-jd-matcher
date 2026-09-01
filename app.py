@@ -20,6 +20,7 @@ import requests
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Literal
 from test_full_pipeline_v4 import full_analysis_pipeline
 from pdf_extraction import extract_text_from_pdf_url
 
@@ -79,6 +80,11 @@ class AnalyzeRequest(BaseModel):
     model_name: str | None = None    # ถ้าไม่ระบุ ใช้ default ของ provider นั้น
 
 
+class FacultyMatch(BaseModel):
+    status: Literal["ตรง", "ใกล้เคียง", "ไม่ตรง", "ไม่ระบุ"]
+    comment: str | None = None
+
+
 class AnalyzeResponse(BaseModel):
     matching_score: float
     matching_confidence: float
@@ -87,6 +93,7 @@ class AnalyzeResponse(BaseModel):
     storytelling_score: str | None
     ai_reason: str | None
     specific_strengths: str | None
+    faculty_match: FacultyMatch | None
     storytelling_confidence: float
     storytelling_provider: str | None
     storytelling_latency_seconds: float | None
