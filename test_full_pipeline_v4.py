@@ -68,6 +68,19 @@ def calculate_skill_extraction_confidence(raw_skills, resume_text):
     return confidence
 
 
+VALID_FACULTY_STATUSES = {"ตรง", "ใกล้เคียง", "ไม่ตรง", "ไม่ระบุ"}
+
+
+def normalize_faculty_match(status, comment):
+    """กัน LLM ตอบ status เพี้ยนไปจาก 4 ค่าที่กำหนด (เช่น พิมพ์ต่างเล็กน้อย หรือเป็น None)
+    เพื่อไม่ให้ pydantic response_model ใน app.py error 500 ตอน validate
+    รับ flat fields (faculty_status, faculty_comment) แล้วประกอบกลับเป็น object เดียว
+    ให้ contract ฝั่ง backend เหมือนเดิม ไม่กระทบ app.py"""
+    if status not in VALID_FACULTY_STATUSES:
+        status = "ไม่ระบุ"
+    return {"status": status, "comment": comment}
+
+
 def full_analysis_pipeline(resume_text, job_text, model_provider="gemini", model_name=None):
     """
     model_provider: "gemini" | "openai" | "claude" — เลือกเจ้าที่จะใช้วิเคราะห์ storytelling
@@ -109,6 +122,10 @@ def full_analysis_pipeline(resume_text, job_text, model_provider="gemini", model
         "storytelling_score": storytelling_result.get("storytelling_score"),
         "ai_reason": storytelling_result.get("ai_reason"),
         "specific_strengths": storytelling_result.get("specific_strengths"),
+        "faculty_match": normalize_faculty_match(
+            storytelling_result.get("faculty_status"),
+            storytelling_result.get("faculty_comment")
+        ),
         "storytelling_confidence": storytelling_confidence,
         "storytelling_provider": storytelling_result.get("provider"),
         "storytelling_latency_seconds": storytelling_result.get("latency_seconds"),
