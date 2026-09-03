@@ -39,8 +39,7 @@ Resume:
   "strengths": ["จุดแข็ง 1", "จุดแข็ง 2"],
   "weaknesses": ["จุดที่ควรปรับปรุง 1"],
   "specific_strengths": "ถ้ามี Job Description ให้ประเมินว่าผู้สมัครเหมาะกับตำแหน่งนี้แค่ไหน โดยอ้างอิงจุดที่ตรงกันจริงระหว่าง resume กับ JD (ทักษะ/ประสบการณ์/ผลงาน) เป็นภาษาไทย 2-3 ประโยค แต่ถ้าไม่มี Job Description หรือ resume ไม่เกี่ยวข้องกับ JD เลย ให้บอกแทนว่าผู้สมัครมีจุดเด่นพิเศษอะไรที่น่าสนใจโดยไม่อิงกับตำแหน่งนี้",
-  "faculty_status": "ตรง หรือ ใกล้เคียง หรือ ไม่ตรง หรือ ไม่ระบุ ตามเกณฑ์ด้านบน",
-  "faculty_comment": "อธิบายสั้นๆ ภาษาไทย 1-2 ประโยค ว่าทำไมถึงให้ faculty_status นี้",
+  "faculty_match": "1 ประโยค ภาษาไทย ขึ้นต้นด้วยคำว่า 'ตรง เพราะ' หรือ 'ใกล้เคียง เพราะ' หรือ 'ไม่ตรง เพราะ' หรือ 'ไม่ระบุ เพราะ' ตามเกณฑ์ด้านบน แล้วตามด้วยเหตุผลสั้นๆ",
   "confidence": ตัวเลข 0.0 ถึง 1.0 แสดงความมั่นใจของคุณเองในการวิเคราะห์นี้
 }}"""
 
@@ -66,8 +65,7 @@ def _parse_json_response(raw_text):
         result = json.loads(cleaned)
         result.setdefault("confidence", 0.5)
         result.setdefault("specific_strengths", None)
-        result.setdefault("faculty_status", "ไม่ระบุ")
-        result.setdefault("faculty_comment", None)
+        result.setdefault("faculty_match", "ไม่ระบุ เพราะไม่มีข้อมูลเพียงพอ")
         result["json_valid"] = True
         return result
     except json.JSONDecodeError:
@@ -75,8 +73,7 @@ def _parse_json_response(raw_text):
             "storytelling_score": None,
             "ai_reason": None,
             "specific_strengths": None,
-            "faculty_status": "ไม่ระบุ",
-            "faculty_comment": None,
+            "faculty_match": "ไม่ระบุ เพราะไม่มีข้อมูลเพียงพอ",
             "confidence": 0.0,
             "json_valid": False,
             "raw_response": raw_text
