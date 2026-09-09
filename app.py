@@ -75,19 +75,26 @@ class AnalyzeRequest(BaseModel):
     resume_text: str | None = None   # แบบเดิม: ส่งข้อความที่สกัดมาแล้ว
     resume_url: str | None = None    # แบบใหม่: ส่ง URL ไฟล์ PDF (เช่น Cloudinary secure_url) ให้ service สกัดเอง
     job_text: str
+    job_title: str | None = None      # ชื่อตำแหน่งงานที่เปิดรับ ส่งมาจาก backend ตรงๆ (เช่น post.title)
+    faculty_match: str | None = None  # คณะ/สาขาที่ต้องการสำหรับตำแหน่งนี้ ส่งมาจาก backend ตรงๆ (เช่น post.faculty)
     model_provider: str = "gemini"   # "gemini" | "openai" | "claude"
     model_name: str | None = None    # ถ้าไม่ระบุ ใช้ default ของ provider นั้น
 
 
 class AnalyzeResponse(BaseModel):
     matching_score: float
+    raw_matching_score: float          # คะแนนดิบจาก SBERT ก่อนโดนหักด้วย faculty/skill penalty
+    matching_penalty_multiplier: float  # ตัวคูณรวม (faculty_penalty × skill_penalty) — ดูได้ว่าโดนหักเพราะอะไร
+    skill_overlap_ratio: float | None   # สัดส่วนทักษะที่ JD ต้องการแล้ว resume มีจริง — None ถ้าดึง skill จาก JD ไม่ได้เลย
     matching_confidence: float
+    resume_quality_score: float  # คะแนนคุณภาพ resume ล้วนๆ ไม่เทียบ JD — โชว์ฝั่งผู้สมัคร
     skills: dict
     skill_extraction_confidence: float
     storytelling_score: str | None
     ai_reason: str | None
     specific_strengths: str | None
     faculty_match: str | None
+    recommendation_reason: str | None
     storytelling_confidence: float
     storytelling_provider: str | None
     storytelling_latency_seconds: float | None
@@ -134,6 +141,7 @@ def analyze(req: AnalyzeRequest):
     try:
         result = full_analysis_pipeline(
             resume_text, req.job_text,
+            required_faculty=req.faculty_match, job_title=req.job_title,
             model_provider=req.model_provider, model_name=req.model_name
         )
         result["text_extraction_method"] = text_extraction_method
