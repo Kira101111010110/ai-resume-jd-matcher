@@ -18,8 +18,9 @@
 ## ✨ คุณสมบัติเด่น (Core Features)
 
 * **Automated PDF Text Extraction** — แปลงและสกัดข้อความจากเรซูเม่ไฟล์ PDF รองรับหลากหลายเลย์เอาต์ พร้อม OCR fallback สำหรับไฟล์ที่มีปัญหาฟอนต์ (`pdf_extraction.py`)
+* **Visual Skill Extraction** — ตรวจจับกราฟิกแสดงทักษะในเรซูเม่ (skill bar, กราฟวงกลม %, ดาว/จุด rating, ไอคอน-โลโก้เทคโนโลยี) แล้วส่งให้ Gemini vision อ่านชื่อสกิลมาต่อท้ายข้อความอัตโนมัติ ป้องกันไม่ให้สกิลที่เป็นรูปภาพหายไปจากการวิเคราะห์ (`pdf_extraction.py`, `llm_providers.py` — ดูรายละเอียดหัวข้อ [สกัดสกิลจากกราฟิกในเรซูเม่](#️-สกัดสกิลจากกราฟิกในเรซูเม่-visual-skill-extraction) ด้านล่าง)
 * **Fine-tuned SBERT Matching** — วัดความเข้ากันได้ระหว่าง Resume กับ JD ด้วย Semantic Similarity (fine-tune จาก `all-mpnet-base-v2`, Spearman correlation 0.357 → 0.850)
-* **Accurate Skill Extraction** — สกัดทักษะเฉพาะทาง (Hard Skills & Soft Skills) ด้วยพจนานุกรมคำศัพท์ที่ทำความสะอาดแล้วและ spaCy Entity Ruler (`rebuild_entity_ruler.py`, `cleaned_hard_final2.jsonl`, `cleaned_soft.jsonl`)
+* **Accurate Skill Extraction** — สกัดทักษะเฉพาะทาง (Hard Skills & Soft Skills) ด้วยพจนานุกรมคำศัพท์ที่ทำความสะอาดแล้วและ spaCy Entity Ruler (`rebuild_entity_ruler.py`, `cleaned_hard_final2.jsonl`, `cleaned_soft.jsonl`) — `skill_overlap_ratio` เทียบทักษะ resume/JD ด้วยทักษะที่กรองคำทั่วไป (ชื่อตำแหน่งงาน, คำ noise) ออกแล้วทั้ง 2 ฝั่ง เพื่อไม่ให้ตัวเลขสูง/ต่ำเกินจริงจากคำที่ไม่ใช่ทักษะจริง
 * **Multi-LLM Provider Integration** — รองรับการประมวลผลและวิเคราะห์ Storytelling ผ่านโมเดลภาษาขนาดใหญ่หลายค่าย (Gemini / OpenAI / Claude) แบบสลับได้ (`llm_providers.py`)
 * **Model Comparison & Evaluation** — มีระบบทดสอบและเปรียบเทียบประสิทธิภาพของแต่ละ Pipeline/Provider (`compare_models.py`, `test_full_pipeline_v4.py`)
 * **FastAPI Service** — พร้อมเชื่อมต่อใช้งานจริงผ่าน Backend API (`app.py`) รองรับทั้ง `resume_text` และ `resume_url`
@@ -56,12 +57,14 @@
 ├── app.py                          # FastAPI service หลัก (endpoint /analyze, /health)
 ├── launcher.py                     # ตัวรัน app.py แบบ system tray (สำหรับแพ็คเป็น .exe)
 ├── path_utils.py                   # Helper หา path โมเดล/config ทั้งตอนรันแบบ .py และ .exe
-├── pdf_extraction.py                # ระบบสกัดข้อความจาก PDF + OCR fallback
-├── llm_providers.py                 # ตัวเชื่อมต่อและจัดการโมเดล LLM หลายค่าย
+├── pdf_extraction.py                # ระบบสกัดข้อความจาก PDF + OCR fallback + ดึงสกิลจากกราฟิก (visual skill extraction)
+├── llm_providers.py                 # ตัวเชื่อมต่อและจัดการโมเดล LLM หลายค่าย + extract_visual_skills (Gemini vision)
 ├── clean_skill_dictionary.py        # สคริปต์ทำความสะอาดพจนานุกรมทักษะ (2-tier filter)
 ├── rebuild_entity_ruler.py          # สคริปต์สร้าง spaCy EntityRuler จาก pattern ที่กรองแล้ว
 ├── compare_models.py                # สคริปต์เปรียบเทียบประสิทธิภาพโมเดล/provider
 ├── test_full_pipeline_v4.py         # Pipeline หลัก: SBERT matching + skill extraction + LLM
+├── test_visual_skills.py            # สคริปต์ debug การตรวจจับ/ดึงสกิลจากกราฟิกกับ PDF ไฟล์เดียว
+├── generate_visual_test_resumes.py  # สคริปต์สร้าง PDF ทดสอบกราฟิกสกิล (synthetic_resumes/visual/)
 ├── modelname.py                     # กำหนดค่าตัวแปรและชื่อโมเดลที่ใช้งาน
 ├── cleaned_hard_final2.jsonl        # พจนานุกรม Hard Skills (Pattern Rules)
 ├── cleaned_soft.jsonl               # พจนานุกรม Soft Skills (Pattern Rules)
@@ -96,6 +99,10 @@ cp .env.example .env
 GEMINI_API_KEY=your_api_key_here
 OPENAI_API_KEY=your_api_key_here
 ANTHROPIC_API_KEY=your_api_key_here
+
+# เปิด/ปิดการดึงสกิลจากกราฟิกในเรซูเม่ (default: true) — ต้องมี GEMINI_API_KEY เสมอ ไม่ว่าจะเลือก provider ไหน
+VISUAL_SKILL_EXTRACTION=true
+VISION_MODEL_NAME=gemini-3.6-flash
 ```
 
 ### 3. เตรียมชุดกฎของโมเดลสกัดสกิล (Build Entity Ruler)
@@ -119,6 +126,25 @@ python -m uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
 จากนั้นเข้า `http://localhost:8000/docs` เพื่อทดสอบ API ผ่านหน้า Swagger UI
+
+---
+
+## 🖼️ สกัดสกิลจากกราฟิกในเรซูเม่ (Visual Skill Extraction)
+
+เรซูเม่จำนวนมาก (โดยเฉพาะเทมเพลตจาก Canva) แสดงทักษะเป็น**กราฟิก**แทนข้อความล้วน เช่น skill bar, กราฟวงกลม/เปอร์เซ็นต์, ดาว/จุด rating หรือไอคอน-โลโก้เทคโนโลยี ซึ่ง `pdfplumber`/OCR ธรรมดาอ่านไม่ได้ ทำให้สกิลเหล่านี้หายไปจากการวิเคราะห์โดยไม่มี warning และผู้สมัครอาจโดนตัดคะแนน skill penalty อย่างไม่เป็นธรรม
+
+**วิธีทำงาน** (ใน `pdf_extraction.extract_text_from_pdf_bytes`):
+1. ตรวจแต่ละหน้า PDF ด้วย `pdfplumber` หาสัญญาณกราฟิกสกิล — ไอคอน/โลโก้ขนาดเล็ก (กันรูปโปรไฟล์ด้วยเกณฑ์พื้นที่), กลุ่มแถบสี่เหลี่ยมความสูงเท่ากันหลายแถบ (skill bar), หรือ curve จำนวนมาก (กราฟวงกลม/ดาว)
+2. หน้าที่ตรวจพบ (ไม่เกิน 2 หน้า) จะถูก render เป็นภาพด้วย PyMuPDF แล้วส่งให้ **Gemini vision** (`llm_providers.extract_visual_skills`) อ่านชื่อสกิล — ใช้ Gemini เสมอไม่ว่าจะเลือก `model_provider` ใดใน `/analyze`
+3. สกิลที่ได้จะถูกเทียบกับข้อความที่สกัดมาแล้ว (case-insensitive + กันจับคำย่อยอย่าง "C"/"R"/"Go") ตัดตัวที่ซ้ำออก แล้วต่อท้ายข้อความเป็นบรรทัด `Skills (from graphics): ...` — ผลคือ SBERT, spaCy skill extraction, `skill_overlap_ratio` และ storytelling เห็นสกิลเหล่านี้โดยอัตโนมัติ ไม่ต้องแก้ pipeline ส่วนอื่น
+
+**Response fields ใหม่ใน `/analyze`:** `visual_skills` (list ของสกิลใหม่ที่ดึงได้จากกราฟิก) และ `visual_skills_used` (bool)
+
+**ปลอดภัยต่อ `/analyze`:** ถ้าไม่มี `GEMINI_API_KEY`, Gemini error, timeout หรือ render ไม่ได้ ระบบจะข้ามขั้นนี้ไปใช้ข้อความเดิม แล้วแนบข้อความอธิบายไว้ใน `text_extraction_warning` แทนที่จะทำให้ request ล้มเหลว — เรซูเม่ที่ไม่มีกราฟิกสกิลเลยจะไม่ถูกเรียก Gemini เพิ่มและไม่ช้าลง
+
+ปิดฟีเจอร์นี้ได้ด้วย env `VISUAL_SKILL_EXTRACTION=false` (ดูหัวข้อ [ตั้งค่า Environment Variables](#2-ตั้งค่า-environment-variables) ด้านบน)
+
+**ทดสอบ:** `python test_visual_skills.py path/to/resume.pdf` พิมพ์หน้าที่ตรวจเจอ + เหตุผล, ตัวเลขดิบ (area ratio ของรูป/จำนวน rect-curve ต่อหน้า สำหรับจูน threshold), `visual_skills` และ 15 บรรทัดสุดท้ายของข้อความที่สกัดได้ — มี PDF ตัวอย่างไว้ทดสอบที่ `synthetic_resumes/visual/` (สร้างด้วย `generate_visual_test_resumes.py`)
 
 ---
 
