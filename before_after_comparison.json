@@ -1,0 +1,105 @@
+[
+  {
+    "file": "A.pdf",
+    "VISUAL_SKILL_EXTRACTION": "false",
+    "http_status": 200,
+    "elapsed_seconds": 13.12,
+    "matching_score": 32.1,
+    "raw_matching_score": 53.5,
+    "skill_overlap_ratio": 0.125,
+    "resume_hard_skills": [
+      "Agile",
+      "Figma",
+      "Jira",
+      "LinkedIn",
+      "Product Manager",
+      "Product Strategy",
+      "SQL",
+      "Stakeholder Management",
+      "design",
+      "functional",
+      "mobile applications",
+      "onboarding",
+      "product manager"
+    ],
+    "visual_skills": [],
+    "visual_skills_used": false,
+    "recommendation_reason": "ไม่ควรรับ เพราะ ทักษะตรงกับรายละเอียดงานเพียงประมาณ 15% และประสบการณ์หลักของผู้สมัครเป็นสายงาน Product Manager ซึ่งไม่ตรงกับตำแหน่ง Full-stack Developer ที่เปิดรับ"
+  },
+  {
+    "file": "A.pdf",
+    "VISUAL_SKILL_EXTRACTION": "true",
+    "http_status": 200,
+    "elapsed_seconds": 13.42,
+    "matching_score": 32.1,
+    "raw_matching_score": 53.5,
+    "skill_overlap_ratio": 0.125,
+    "resume_hard_skills": [
+      "Agile",
+      "Figma",
+      "Jira",
+      "LinkedIn",
+      "Product Manager",
+      "Product Strategy",
+      "SQL",
+      "Stakeholder Management",
+      "design",
+      "functional",
+      "mobile applications",
+      "onboarding",
+      "product manager"
+    ],
+    "visual_skills": [],
+    "visual_skills_used": false,
+    "recommendation_reason": "ไม่ควรรับ เพราะผู้สมัครมาจากสายงานคนละสายและมีทักษะตรงกับรายละเอียดงานเพียงประมาณ 15% โดยขาดทักษะหลักด้านการเขียนโปรแกรมและการพัฒนาเว็บอย่างสิ้นเชิง"
+  },
+  {
+    "file": "C.pdf",
+    "VISUAL_SKILL_EXTRACTION": "false",
+    "http_status": 200,
+    "elapsed_seconds": 14.83,
+    "matching_score": 75.8,
+    "raw_matching_score": 75.8,
+    "skill_overlap_ratio": 0.5,
+    "resume_hard_skills": [
+      "CSS",
+      "HTML",
+      "JavaScript",
+      "React",
+      "analytics",
+      "database design",
+      "design"
+    ],
+    "visual_skills": [],
+    "visual_skills_used": false,
+    "recommendation_reason": "ควรรับ เพราะ ผู้สมัครมีทักษะตรงกับรายละเอียดงานประมาณ 60% มีประสบการณ์พัฒนาเว็บแบบครบวงจร 5 ปี และมีผลงานที่วัดผลได้ชัดเจน"
+  },
+  {
+    "file": "C.pdf",
+    "VISUAL_SKILL_EXTRACTION": "true",
+    "http_status": 200,
+    "elapsed_seconds": 15.12,
+    "matching_score": 78.1,
+    "raw_matching_score": 78.1,
+    "skill_overlap_ratio": 0.875,
+    "resume_hard_skills": [
+      "CSS",
+      "Docker",
+      "Figma",
+      "HTML",
+      "JavaScript",
+      "PostgreSQL",
+      "React",
+      "analytics",
+      "database design",
+      "design"
+    ],
+    "visual_skills": [
+      "Docker",
+      "Figma",
+      "PostgreSQL"
+    ],
+    "visual_skills_used": true,
+    "recommendation_reason": "ควรรับ เพราะทักษะของผู้สมัครตรงกับรายละเอียดงานประมาณ 100% และมีประสบการณ์ตรงในการพัฒนาเว็บแอปพลิเคชันแบบครบวงจรมาถึง 5 ปี"
+  }
+]

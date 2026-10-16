@@ -1,0 +1,137 @@
+[
+  {
+    "resume": "01_it_junior_high_storytelling",
+    "jd": "jd_backend_developer",
+    "old_ratio": 0.714,
+    "new_ratio": 0.714,
+    "old_penalty": 1.0,
+    "new_penalty": 1.0,
+    "changed": false
+  },
+  {
+    "resume": "02_it_senior_keyword_heavy",
+    "jd": "jd_senior_software_engineer",
+    "old_ratio": 1.0,
+    "new_ratio": 1.0,
+    "old_penalty": 1.0,
+    "new_penalty": 1.0,
+    "changed": false
+  },
+  {
+    "resume": "03_it_data_analyst_medium",
+    "jd": "jd_data_analyst",
+    "old_ratio": 0.667,
+    "new_ratio": 0.75,
+    "old_penalty": 1.0,
+    "new_penalty": 1.0,
+    "changed": true
+  },
+  {
+    "resume": "04_accounting_entry_high_storytelling",
+    "jd": "jd_accountant",
+    "old_ratio": 1.0,
+    "new_ratio": 1.0,
+    "old_penalty": 1.0,
+    "new_penalty": 1.0,
+    "changed": false
+  },
+  {
+    "resume": "05_accounting_senior_keyword",
+    "jd": "jd_accountant",
+    "old_ratio": 0.0,
+    "new_ratio": 0.0,
+    "old_penalty": 0.6,
+    "new_penalty": 0.6,
+    "changed": false
+  },
+  {
+    "resume": "06_marketing_mid_high_storytelling",
+    "jd": "jd_marketing_manager",
+    "old_ratio": null,
+    "new_ratio": null,
+    "old_penalty": 1.0,
+    "new_penalty": 1.0,
+    "changed": false
+  },
+  {
+    "resume": "07_marketing_entry_short_edge_case",
+    "jd": "jd_marketing_manager",
+    "old_ratio": null,
+    "new_ratio": null,
+    "old_penalty": 1.0,
+    "new_penalty": 1.0,
+    "changed": false
+  },
+  {
+    "resume": "08_sales_mid_high_storytelling",
+    "jd": "jd_sales_executive",
+    "old_ratio": 0.0,
+    "new_ratio": 0.0,
+    "old_penalty": 0.6,
+    "new_penalty": 0.6,
+    "changed": false
+  },
+  {
+    "resume": "09_sales_entry_keyword",
+    "jd": "jd_sales_executive",
+    "old_ratio": 0.0,
+    "new_ratio": 0.0,
+    "old_penalty": 0.6,
+    "new_penalty": 0.6,
+    "changed": false
+  },
+  {
+    "resume": "11_hr_mid_high_storytelling",
+    "jd": "jd_hr_recruiter",
+    "old_ratio": 1.0,
+    "new_ratio": 1.0,
+    "old_penalty": 1.0,
+    "new_penalty": 1.0,
+    "changed": false
+  },
+  {
+    "resume": "12_mech_engineer_senior_keyword",
+    "jd": "jd_mechanical_engineer",
+    "old_ratio": 1.0,
+    "new_ratio": 1.0,
+    "old_penalty": 1.0,
+    "new_penalty": 1.0,
+    "changed": false
+  },
+  {
+    "resume": "13_career_change_accounting_to_it",
+    "jd": "jd_backend_developer",
+    "old_ratio": 0.143,
+    "new_ratio": 0.143,
+    "old_penalty": 0.6,
+    "new_penalty": 0.6,
+    "changed": false
+  },
+  {
+    "resume": "14_career_change_teacher_to_hr",
+    "jd": "jd_hr_recruiter",
+    "old_ratio": 0.333,
+    "new_ratio": 0.0,
+    "old_penalty": 0.8,
+    "new_penalty": 0.6,
+    "changed": true
+  },
+  {
+    "resume": "15_it_very_long_senior",
+    "jd": "jd_senior_software_engineer",
+    "old_ratio": 0.833,
+    "new_ratio": 0.8,
+    "old_penalty": 1.0,
+    "new_penalty": 1.0,
+    "changed": true
+  },
+  {
+    "resume": "16_fresh_grad_almost_no_experience_edge_case",
+    "jd": "jd_backend_developer",
+    "old_ratio": 0.143,
+    "new_ratio": 0.143,
+    "old_penalty": 0.6,
+    "new_penalty": 0.6,
+    "changed": false
+  }
+]

@@ -132,6 +132,83 @@ def _parse_json_response(raw_text):
 
 
 # ============================================
+# ดึงสกิลจากกราฟิกในเรซูเม่ (skill bar / กราฟวงกลม % / ดาว rating / ไอคอน-โลโก้เทคโนโลยี)
+# ใช้ Gemini เสมอ ไม่ขึ้นกับ model_provider ที่ผู้ใช้เลือกไว้สำหรับ storytelling
+# (pdf_extraction.py เป็นคนเรียกฟังก์ชันนี้ ตอนตรวจพบว่าหน้าไหนมีกราฟิกสกิล)
+# ============================================
+VISUAL_SKILL_EXTRACTION_PROMPT = """คุณจะได้รับภาพหน้าเรซูเม่ 1-2 หน้า หน้าที่ของคุณคือดูเฉพาะ "กราฟิกแสดงทักษะ" ในภาพเท่านั้น ได้แก่:
+- แถบวัดระดับทักษะ (skill bar / progress bar)
+- กราฟวงกลมหรือตัวเลขเปอร์เซ็นต์ที่แสดงระดับความชำนาญ
+- ดาว หรือจุด (dot) ที่ใช้แสดง rating ของทักษะ
+- ไอคอนหรือโลโก้ของภาษาโปรแกรม เครื่องมือ หรือ framework (เช่น โลโก้ Python, React, Photoshop)
+- ป้าย/แท็ก/chip เป็นกล่องหรือแคปซูลสีพื้น ที่มีชื่อเทคโนโลยี เครื่องมือ หรือ framework เขียนอยู่ข้างใน
+  (เช่น กล่องสีเข้มเขียนคำว่า "Docker") แม้จะไม่มีไอคอนประกอบก็ถือว่าเป็นกราฟิกสกิลเช่นกัน ไม่ใช่แค่ "ข้อความ"
+  เพราะชื่อสกิลแบบนี้อยู่ในรูปภาพ ไม่ใช่ข้อความที่เลือก/คัดลอกได้เหมือนข้อความส่วนอื่นของเรซูเม่
+
+ให้ลิสต์ "ชื่อทักษะ" ที่เห็นจากกราฟิกเหล่านี้เท่านั้น โดยใช้ชื่อมาตรฐานภาษาอังกฤษที่เป็นที่รู้จักทั่วไป
+(เช่น "JavaScript" ไม่ใช่ "JS", "Node.js" ไม่ใช่ "nodejs", "Adobe Photoshop" ไม่ใช่ "PS")
+
+ห้ามเดาทักษะจากไอคอนตกแต่งทั่วไปที่ไม่ใช่ทักษะ เช่น ไอคอนโทรศัพท์ อีเมล ที่อยู่ เฟือง (gear) หลอดไฟ หรือรูปคน
+ห้ามใส่ทักษะที่คุณไม่มั่นใจว่าเห็นจริงในภาพ ถ้าในภาพไม่มีกราฟิกทักษะเลย ให้คืน list ว่าง
+ไม่ต้องประเมินระดับหรือเปอร์เซ็นต์ของทักษะ ต้องการแค่ "ชื่อทักษะ" เท่านั้น
+
+ตอบเป็น JSON รูปแบบนี้เท่านั้น ห้ามมี key อื่นหรือ nested object:
+{"skills": ["Python", "React", "Adobe Photoshop"]}"""
+
+
+def extract_visual_skills(images: list, model_name: str = None) -> list:
+    """
+    ส่งภาพหน้าเรซูเม่ (list ของ PNG bytes) ให้ Gemini vision อ่านชื่อสกิลจากกราฟิก
+    ใช้โมเดล default เดียวกับ analyze_with_gemini เปลี่ยนได้ผ่าน env VISION_MODEL_NAME
+    คืนค่า list[str] ของชื่อสกิล (กรองค่าว่าง/ซ้ำ/ยาวเกิน 40 ตัวอักษรออกแล้ว)
+    โยน exception ออกไปถ้าไม่มี API key, เรียก Gemini ไม่สำเร็จ, หรือ JSON ที่ได้ไม่ตรง schema
+    (ผู้เรียก คือ pdf_extraction.py ต้อง catch เอง แล้ว fallback กลับไปใช้ text เดิม)
+    """
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        raise RuntimeError("ยังไม่ได้ตั้งค่า GEMINI_API_KEY — ไม่สามารถดึงสกิลจากกราฟิกได้")
+
+    import google.generativeai as genai
+
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(model_name or os.environ.get("VISION_MODEL_NAME", "gemini-3.6-flash"))
+
+    parts = [VISUAL_SKILL_EXTRACTION_PROMPT] + [
+        {"mime_type": "image/png", "data": img} for img in images
+    ]
+    response = model.generate_content(
+        parts,
+        generation_config=genai.types.GenerationConfig(
+            temperature=0.1,
+            response_mime_type="application/json"
+        )
+    )
+
+    parsed = _parse_json_response(response.text)
+    if not parsed.get("json_valid", False):
+        raise ValueError("Gemini vision ไม่คืนค่าเป็น JSON ที่ถูกต้อง")
+
+    raw_skills = parsed.get("skills", [])
+    if not isinstance(raw_skills, list):
+        raise ValueError("รูปแบบ JSON ที่ได้ไม่ตรงกับที่คาดไว้ (ต้องมี key 'skills' เป็น list)")
+
+    seen = set()
+    skills = []
+    for s in raw_skills:
+        if not isinstance(s, str):
+            continue
+        s = s.strip()
+        if not s or len(s) > 40:
+            continue
+        key = s.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        skills.append(s)
+    return skills
+
+
+# ============================================
 # Gemini (ใช้งานได้จริง มี API key แล้ว)
 # ============================================
 def analyze_with_gemini(resume_text, job_text, required_faculty=None, job_title=None, raw_matching_score=None, model_name="gemini-3.6-flash"):

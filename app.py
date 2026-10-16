@@ -101,6 +101,8 @@ class AnalyzeResponse(BaseModel):
     overall_confidence: float
     text_extraction_method: str | None = None    # "text_layer" | "ocr_fallback" | None (ตอนส่ง resume_text ตรงๆ)
     text_extraction_warning: str | None = None   # ไม่ None ถ้าข้อความอาจยังเพี้ยนอยู่บ้างแม้ลอง OCR แล้ว
+    visual_skills: list[str] = []        # สกิลที่ดึงได้จากกราฟิกในเรซูเม่ (skill bar/กราฟ %/ดาว/ไอคอน) — [] ถ้าไม่มีหรือส่ง resume_text ตรงๆ
+    visual_skills_used: bool = False     # True ถ้ามีสกิลจากกราฟิกถูกต่อท้าย resume_text จริง
 
 
 @app.get("/health")
@@ -116,9 +118,12 @@ def analyze(req: AnalyzeRequest):
 
     text_extraction_method = None
     text_extraction_warning = None
+    visual_skills = []
+    visual_skills_used = False
 
-    # หา resume_text จริงที่จะใช้: ถ้าส่ง resume_url มา ให้ดาวน์โหลด+สกัดเอง (pdfplumber → OCR fallback ถ้าจำเป็น)
-    # ถ้าไม่ส่ง resume_url แต่ส่ง resume_text มาตรงๆ ก็ใช้เลย (รองรับของเดิมไว้)
+    # หา resume_text จริงที่จะใช้: ถ้าส่ง resume_url มา ให้ดาวน์โหลด+สกัดเอง (pdfplumber → OCR fallback ถ้าจำเป็น
+    # รวมถึงดึงสกิลจากกราฟิกถ้ามี — ดู pdf_extraction.extract_text_from_pdf_bytes)
+    # ถ้าไม่ส่ง resume_url แต่ส่ง resume_text มาตรงๆ ก็ใช้เลย (รองรับของเดิมไว้ — ไม่มีไฟล์ PDF ให้ตรวจกราฟิก)
     if req.resume_url:
         try:
             extraction_result = extract_text_from_pdf_url(req.resume_url)
@@ -130,6 +135,8 @@ def analyze(req: AnalyzeRequest):
         resume_text = extraction_result["text"]
         text_extraction_method = extraction_result["method"]
         text_extraction_warning = extraction_result["warning"]
+        visual_skills = extraction_result["visual_skills"]
+        visual_skills_used = extraction_result["visual_skills_used"]
     elif req.resume_text:
         resume_text = req.resume_text
     else:
@@ -146,6 +153,8 @@ def analyze(req: AnalyzeRequest):
         )
         result["text_extraction_method"] = text_extraction_method
         result["text_extraction_warning"] = text_extraction_warning
+        result["visual_skills"] = visual_skills
+        result["visual_skills_used"] = visual_skills_used
         return result
     except ValueError as e:
         # provider ที่ระบุมาไม่รู้จัก (พิมพ์ผิด หรือยังไม่รองรับ)

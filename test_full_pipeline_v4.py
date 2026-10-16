@@ -15,9 +15,12 @@ GENERIC_ROLE_WORDS = {
     # job title / role คำทั่วไป
     "backend", "frontend", "developer", "engineer", "manager", "engineering",
     "development", "documentation", "training", "deployment",
+    "software engineer", "data analyst",
     # คำที่หลุดมาจาก label/หัวข้ออื่นๆ ใน resume ไม่ใช่ skill จริง
     "email", "management", "progress", "project", "programming", "system",
-    "team project", "final project", "in progress",
+    "team project", "final project", "in progress", "insight", "hiring",
+    # "hr" เป็นตัวย่อแผนก/ชื่อตำแหน่งที่อยากสมัคร ไม่ใช่ทักษะจริง (ต่างจาก "hris" ซึ่งเป็นชื่อระบบจริง)
+    "hr",
 }
 
 
@@ -187,8 +190,12 @@ def full_analysis_pipeline(resume_text, job_text, required_faculty=None, job_tit
     clean_skills = filter_generic_skills(raw_skills)
 
     # --- Skill extraction ฝั่ง JD ด้วย (ใช้เฉพาะคำนวณ skill_overlap_ratio ไม่ได้เอาไปโชว์) ---
+    # ใช้ clean_skills (กรอง GENERIC_ROLE_WORDS แล้ว) ทั้ง 2 ฝั่งตอนคำนวณ overlap เพราะ raw_skills
+    # มีคำทั่วไปอย่างชื่อตำแหน่งงาน ("Software Engineer", "Data Analyst") ปนมาทั้งฝั่ง resume และ JD
+    # ทำให้ ratio สูงเกินจริงจากคำที่ไม่ใช่ทักษะเฉพาะ — skill_extraction_confidence ยังคงใช้ raw_skills เหมือนเดิม
     job_raw_skills = extract_skills(job_text)
-    skill_overlap_ratio = calculate_skill_overlap(raw_skills, job_raw_skills)
+    job_clean_skills = filter_generic_skills(job_raw_skills)
+    skill_overlap_ratio = calculate_skill_overlap(clean_skills, job_clean_skills)
     skill_penalty = get_skill_penalty(skill_overlap_ratio)
 
     # --- Storytelling: ใช้ provider ที่เลือกไว้ ---
