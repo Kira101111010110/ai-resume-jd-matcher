@@ -6,6 +6,7 @@
 เนื้อหาเป็นภาษาอังกฤษล้วนเพื่อเลี่ยงปัญหาฟอนต์ — จุดสนใจของไฟล์พวกนี้คือกราฟิก ไม่ใช่เนื้อหาภาษาไทย
 
 Output: synthetic_resumes/visual/{A,B,C}.pdf
+รันจากไดเรกทอรีไหนก็ได้ (path ของ output ผูกกับตำแหน่งไฟล์นี้ ไม่ใช่ working directory)
 """
 
 import os
@@ -13,7 +14,8 @@ import io
 import fitz
 from PIL import Image, ImageDraw, ImageFont
 
-OUT_DIR = os.path.join("synthetic_resumes", "visual")
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_DIR = os.path.join(REPO_ROOT, "synthetic_resumes", "visual")
 PAGE_W, PAGE_H = 595, 842  # A4 เป็น point (72 dpi)
 
 

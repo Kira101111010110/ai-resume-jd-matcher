@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
 """
 ทดสอบการตรวจจับ/ดึงสกิลจากกราฟิกใน pdf_extraction.py กับไฟล์ PDF ในเครื่อง
-วิธีรัน: python test_visual_skills.py path/to/resume.pdf
+วิธีรัน (รันจากไดเรกทอรีไหนก็ได้): python local_manual_scripts/test_visual_skills.py path/to/resume.pdf
 
 พิมพ์: หน้าที่ตรวจเจอ + เหตุผล, ตัวเลขดิบของแต่ละหน้า (area ratio ของรูป, จำนวน rect/curve)
        เพื่อเอาไปจูน threshold, visual_skills, method, warning และ 15 บรรทัดสุดท้ายของ text
 """
 
+import os
 import sys
 import io
 import pdfplumber
 
+# เพิ่ม root ของ repo เข้า sys.path เพราะไฟล์นี้อยู่ใน local_manual_scripts/ ไม่ใช่ root
+# ทำให้ import pdf_extraction ได้ไม่ว่าจะรันจาก working directory ไหน
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pdf_extraction as pe
 
 
 def main():
     if len(sys.argv) != 2:
-        print("วิธีรัน: python test_visual_skills.py path/to/resume.pdf")
+        print("วิธีรัน: python local_manual_scripts/test_visual_skills.py path/to/resume.pdf")
         sys.exit(1)
 
     pdf_path = sys.argv[1]

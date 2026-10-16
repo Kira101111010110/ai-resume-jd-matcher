@@ -4,11 +4,23 @@
 ทั้ง 2 ฝั่ง + เพิ่ม noise words ลง GENERIC_ROLE_WORDS) เทียบกับพฤติกรรมเดิมก่อนแก้
 "old" ด้านล่าง = จำลองพฤติกรรมเดิมก่อนแก้ (raw_skills ดิบทั้ง 2 ฝั่ง + GENERIC_ROLE_WORDS ชุดเดิม 19 คำ)
 "new" ด้านล่าง = เรียกฟังก์ชันจริงจาก test_full_pipeline_v4.py ที่แก้แล้ว (ยืนยันว่า production ทำงานตรงตามที่ออกแบบไว้)
+
+วิธีรัน: ต้องรันจาก root ของ repo เท่านั้น (ไม่ใช่จากใน local_manual_scripts/)
+    cd <repo root>
+    python local_manual_scripts/analyze_skill_noise.py
+เหตุผล: ไฟล์นี้ import test_full_pipeline_v4.py ซึ่งโหลดโมเดล SBERT ด้วย relative path
+('./resume-jd-matcher-model/...') ที่ผูกกับ working directory ตอนรัน ไม่ใช่ตำแหน่งไฟล์ — เป็นพฤติกรรม
+เดิมของ test_full_pipeline_v4.py ไม่ได้แก้ตรงนี้
 """
 
+import os
+import sys
 import json
 import glob
 
+# เพิ่ม root ของ repo เข้า sys.path เพราะไฟล์นี้อยู่ใน local_manual_scripts/ ไม่ใช่ root
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, REPO_ROOT)
 import pdf_extraction as pe
 from test_full_pipeline_v4 import (
     extract_skills,
@@ -39,7 +51,7 @@ def calculate_skill_overlap_raw(resume_skills, job_skills):
 # ============================================================
 # ขั้น 1-2: รัน extract_skills กับ JD ทุกอัน หา noise
 # ============================================================
-with open("synthetic_resumes/job_descriptions.json", encoding="utf-8") as f:
+with open(os.path.join(REPO_ROOT, "synthetic_resumes", "job_descriptions.json"), encoding="utf-8") as f:
     JDS = json.load(f)
 
 print("=" * 70)
@@ -88,7 +100,7 @@ print("ขั้น 3: เทียบพฤติกรรมเดิม (จ�
 print("=" * 70)
 
 rows = []
-pdf_files = sorted(glob.glob("synthetic_resumes/pdf/*.pdf"))
+pdf_files = sorted(glob.glob(os.path.join(REPO_ROOT, "synthetic_resumes", "pdf", "*.pdf")))
 for pdf_path in pdf_files:
     resume_id = pdf_path.split("\\")[-1].replace(".pdf", "").replace("/", "")
     jd_id = RESUME_TO_JD.get(resume_id)
@@ -137,5 +149,7 @@ changed_rows = [r for r in rows if r["changed"]]
 print()
 print(f"สรุป: ทดสอบ {len(rows)} ไฟล์ (มี JD ให้จับคู่) — เปลี่ยน {len(changed_rows)} ไฟล์")
 
-with open("skill_noise_analysis.json", "w", encoding="utf-8") as f:
+output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "skill_noise_analysis.json")
+with open(output_path, "w", encoding="utf-8") as f:
     json.dump(rows, f, ensure_ascii=False, indent=2)
+print(f"บันทึกผลลัพธ์ไว้ที่ {output_path}")

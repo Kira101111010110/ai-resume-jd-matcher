@@ -63,8 +63,7 @@
 ├── rebuild_entity_ruler.py          # สคริปต์สร้าง spaCy EntityRuler จาก pattern ที่กรองแล้ว
 ├── compare_models.py                # สคริปต์เปรียบเทียบประสิทธิภาพโมเดล/provider
 ├── test_full_pipeline_v4.py         # Pipeline หลัก: SBERT matching + skill extraction + LLM
-├── test_visual_skills.py            # สคริปต์ debug การตรวจจับ/ดึงสกิลจากกราฟิกกับ PDF ไฟล์เดียว
-├── generate_visual_test_resumes.py  # สคริปต์สร้าง PDF ทดสอบกราฟิกสกิล (synthetic_resumes/visual/)
+├── local_manual_scripts/            # สคริปต์สำหรับรันมือ/debug เฉพาะกิจ (ไม่ใช่ส่วนของ service) ดูรายละเอียดด้านล่าง
 ├── modelname.py                     # กำหนดค่าตัวแปรและชื่อโมเดลที่ใช้งาน
 ├── cleaned_hard_final2.jsonl        # พจนานุกรม Hard Skills (Pattern Rules)
 ├── cleaned_soft.jsonl               # พจนานุกรม Soft Skills (Pattern Rules)
@@ -144,7 +143,24 @@ python -m uvicorn app:app --host 0.0.0.0 --port 8000
 
 ปิดฟีเจอร์นี้ได้ด้วย env `VISUAL_SKILL_EXTRACTION=false` (ดูหัวข้อ [ตั้งค่า Environment Variables](#2-ตั้งค่า-environment-variables) ด้านบน)
 
-**ทดสอบ:** `python test_visual_skills.py path/to/resume.pdf` พิมพ์หน้าที่ตรวจเจอ + เหตุผล, ตัวเลขดิบ (area ratio ของรูป/จำนวน rect-curve ต่อหน้า สำหรับจูน threshold), `visual_skills` และ 15 บรรทัดสุดท้ายของข้อความที่สกัดได้ — มี PDF ตัวอย่างไว้ทดสอบที่ `synthetic_resumes/visual/` (สร้างด้วย `generate_visual_test_resumes.py`)
+**ทดสอบ:** `python local_manual_scripts/test_visual_skills.py path/to/resume.pdf` (รันจากไดเรกทอรีไหนก็ได้) พิมพ์หน้าที่ตรวจเจอ + เหตุผล, ตัวเลขดิบ (area ratio ของรูป/จำนวน rect-curve ต่อหน้า สำหรับจูน threshold), `visual_skills` และ 15 บรรทัดสุดท้ายของข้อความที่สกัดได้ — มี PDF ตัวอย่างไว้ทดสอบที่ `synthetic_resumes/visual/` (สร้างด้วย `local_manual_scripts/generate_visual_test_resumes.py`) ดูสคริปต์ manual/debug อื่นๆ ที่ `local_manual_scripts/` ทั้งหมดได้ในหัวข้อ [สคริปต์สำหรับรันมือ](#-สคริปต์สำหรับรันมือ-local_manual_scripts) ด้านล่าง
+
+---
+
+## 🗂️ สคริปต์สำหรับรันมือ (local_manual_scripts/)
+
+โฟลเดอร์นี้รวมสคริปต์ที่เขียนขึ้นระหว่างพัฒนา/debug ฟีเจอร์ visual skill extraction และแก้ `skill_overlap_ratio`
+**ไม่ใช่ส่วนหนึ่งของ service** (`app.py` ไม่ได้ import ไฟล์พวกนี้) เก็บไว้เผื่อต้อง debug/จูน threshold ซ้ำในอนาคต
+
+| ไฟล์ | ใช้ทำอะไร |
+|---|---|
+| `test_visual_skills.py` | ดีบักการตรวจจับ/ดึงสกิลจากกราฟิกกับ PDF ไฟล์เดียว — `python local_manual_scripts/test_visual_skills.py path/to/resume.pdf` |
+| `generate_visual_test_resumes.py` | สร้าง PDF ทดสอบกราฟิกสกิล 3 ไฟล์ (`synthetic_resumes/visual/A.pdf`, `B.pdf`, `C.pdf`) |
+| `analyze_skill_noise.py` | วิเคราะห์ว่าคำใน `GENERIC_ROLE_WORDS` (ชื่อตำแหน่งงาน/คำ noise) กระทบ `skill_overlap_ratio` ของเรซูเม่ตัวอย่างชุดไหนบ้าง |
+| `run_before_after_comparison.py` | ยิง `/analyze` จริงเทียบผลก่อน/หลังเปิด `VISUAL_SKILL_EXTRACTION` ผ่าน FastAPI `TestClient` |
+| `before_after_comparison.json`, `skill_noise_analysis.json` | ผลลัพธ์ล่าสุดที่บันทึกไว้จาก 2 สคริปต์ด้านบน (ข้อมูล ไม่ใช่สคริปต์) |
+
+**สำคัญ:** `analyze_skill_noise.py` และ `run_before_after_comparison.py` ต้องรันจาก **root ของ repo เท่านั้น** (เช่น `cd ai-resume-jd-matcher && python local_manual_scripts/analyze_skill_noise.py`) เพราะทั้งคู่ import `test_full_pipeline_v4.py` ซึ่งโหลดโมเดล SBERT ด้วย relative path ที่ผูกกับ working directory — เป็นพฤติกรรมเดิมของไฟล์นั้น ไม่เกี่ยวกับตำแหน่งของสคริปต์ในโฟลเดอร์นี้ ส่วน `test_visual_skills.py` และ `generate_visual_test_resumes.py` รันจากไดเรกทอรีไหนก็ได้ (resolve path เทียบกับตำแหน่งไฟล์เอง)
 
 ---
 

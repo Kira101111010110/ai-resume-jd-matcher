@@ -6,13 +6,26 @@
 สลับ VISUAL_SKILL_EXTRACTION=false/true ก่อนแต่ละ request (อ่านจาก os.environ สดทุกครั้งอยู่แล้ว
 ใน pdf_extraction._visual_extraction_enabled() ไม่ต้อง restart server)
 ต้องมี http.server เสิร์ฟ synthetic_resumes/visual/ ที่พอร์ต 8001 อยู่ก่อน (resume_url ต้องดาวน์โหลดได้จริง)
+เช่น จาก root ของ repo: python -m http.server 8001 --directory synthetic_resumes/visual
+
+วิธีรันสคริปต์นี้: ต้องรันจาก root ของ repo เท่านั้น (ไม่ใช่จากใน local_manual_scripts/)
+    cd <repo root>
+    python local_manual_scripts/run_before_after_comparison.py
+เหตุผล: ไฟล์นี้ import app.py ซึ่ง import test_full_pipeline_v4.py ที่โหลดโมเดล SBERT ด้วย relative path
+('./resume-jd-matcher-model/...') ที่ผูกกับ working directory ตอนรัน ไม่ใช่ตำแหน่งไฟล์ — เป็นพฤติกรรม
+เดิมของ test_full_pipeline_v4.py ไม่ได้แก้ตรงนี้
 """
 
 import os
+import sys
 import time
 import json
 
 os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+
+# เพิ่ม root ของ repo เข้า sys.path เพราะไฟล์นี้อยู่ใน local_manual_scripts/ ไม่ใช่ root
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, REPO_ROOT)
 
 from fastapi.testclient import TestClient
 from app import app
@@ -61,6 +74,7 @@ for filename, flag in CASES:
     print(json.dumps(row, ensure_ascii=False, indent=2))
     print("-" * 80)
 
-with open("before_after_comparison.json", "w", encoding="utf-8") as f:
+output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "before_after_comparison.json")
+with open(output_path, "w", encoding="utf-8") as f:
     json.dump(rows, f, ensure_ascii=False, indent=2)
-print("บันทึกผลลัพธ์ทั้งหมดไว้ที่ before_after_comparison.json แล้ว")
+print(f"บันทึกผลลัพธ์ทั้งหมดไว้ที่ {output_path} แล้ว")
