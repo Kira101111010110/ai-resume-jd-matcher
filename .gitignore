@@ -1,3 +1,12 @@
+# secrets
 .env
 __pycache__/
 *.pyc
+# โมเดล (ใหญ่เกิน git — ดาวน์โหลดจาก Releases v1.0-models)
+resume-jd-matcher-model/
+skill-extractor-model/
+# venv / ผลลัพธ์สคริปต์วิจัย
+.venv*/
+research/*.csv
+*.zip
+fonts/

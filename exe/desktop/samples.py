@@ -20,13 +20,13 @@ SAMPLES = [
         "id": "story",
         "title": "สมชาย — เล่าเรื่องดี",
         "description": "เขียนเป็นเรื่องราว ปัญหา → สิ่งที่ทำ → ผลลัพธ์ มีตัวเลขชัดเจน",
-        "source": "synthetic_resumes/pdf/01_it_junior_high_storytelling.pdf",
+        "source": "pdf/01_it_junior_high_storytelling.pdf",
     },
     {
         "id": "keyword",
         "title": "ธนกร — เขียนเป็นรายการคำ",
         "description": "ลิสต์ทักษะยาวๆ แต่ไม่ได้เล่าว่าทำอะไร ได้ผลอย่างไร",
-        "source": "synthetic_resumes/pdf/02_it_senior_keyword_heavy.pdf",
+        "source": "pdf/02_it_senior_keyword_heavy.pdf",
     },
     {
         "id": "visual",
@@ -44,7 +44,7 @@ def _path(source: str) -> str:
 
 
 def job_text() -> str:
-    with open(_path("synthetic_resumes/job_descriptions.json"), encoding="utf-8") as f:
+    with open(_path("job_descriptions.json"), encoding="utf-8") as f:
         return json.load(f)[JOB_ID]
 
 
@@ -67,4 +67,4 @@ def read_sample(sample_id: str) -> tuple[bytes, str] | None:
 
 def all_source_files() -> list[str]:
     """ไฟล์ทั้งหมดที่ต้องแพ็กไปกับ exe (path ภายใต้ synthetic_resumes/) — ใช้ใน ResumeAI_API.spec"""
-    return ["synthetic_resumes/job_descriptions.json"] + [s["source"] for s in SAMPLES]
+    return ["job_descriptions.json"] + [s["source"] for s in SAMPLES]

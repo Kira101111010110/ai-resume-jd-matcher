@@ -1,0 +1,14 @@
+# ไม่ส่งของพวกนี้เข้า docker build (COPY . .) — API ใช้แค่ไฟล์ core ที่ root
+.env
+.git
+.venv*/
+__pycache__/
+exe/
+research/
+skill_dictionary/
+local_manual_scripts/
+synthetic_resumes/
+resume-jd-matcher-model/
+skill-extractor-model/
+*.csv
+*.zip
