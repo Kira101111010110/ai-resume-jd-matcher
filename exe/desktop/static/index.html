@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resume AI</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">R</span>
+    <div>
+      <div class="brand-name">Resume AI</div>
+      <div class="brand-sub">คัดกรองเรซูเม่บนเครื่องนี้</div>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <a href="#analyze" id="tab-analyze" class="tab" role="tab">วิเคราะห์</a>
+    <a href="#settings" id="tab-settings" class="tab" role="tab">ตั้งค่า</a>
+    <a href="/manual" class="tab" target="_blank" rel="noopener">วิธีใช้</a>
+  </nav>
+</header>
+
+<div id="boot-banner" class="boot-banner" hidden aria-live="polite"></div>
+
+<main class="wrap">
+  <!-- ================= ตั้งค่าครั้งแรก ================= -->
+  <section id="page-setup" class="page" hidden>
+    <div class="setup">
+      <h1>ตั้งค่าครั้งแรก</h1>
+      <p class="muted">ทำครั้งเดียว ใช้เวลาประมาณ 2 นาที — ระบบต้องใช้ API key ของค่าย AI สำหรับส่วนที่ AI อ่านและสรุปเรซูเม่</p>
+
+      <ol class="steps" aria-label="ขั้นตอน">
+        <li id="step-dot-1" class="is-current">เลือกค่าย AI</li>
+        <li id="step-dot-2">ใส่ API key</li>
+        <li id="step-dot-3">เลือกโมเดล</li>
+      </ol>
+
+      <!-- ขั้นที่ 1 -->
+      <div id="setup-step-1" class="setup-step">
+        <h2>1. เลือกค่าย AI</h2>
+        <div id="setup-providers" class="choice-list" role="radiogroup" aria-label="ค่าย AI"></div>
+        <div class="setup-actions">
+          <button type="button" class="btn primary" id="setup-next-1">ถัดไป</button>
+        </div>
+      </div>
+
+      <!-- ขั้นที่ 2 -->
+      <div id="setup-step-2" class="setup-step" hidden>
+        <h2>2. ใส่ API key ของ <span id="setup-provider-name"></span></h2>
+        <div class="help-box">
+          <p id="setup-key-steps"></p>
+          <p><a id="setup-key-link" href="#" target="_blank" rel="noopener">เปิดหน้าขอ API key →</a></p>
+        </div>
+        <label class="field">
+          <span class="label">วาง API key ที่นี่</span>
+          <span class="key-input">
+            <input type="password" class="mono" id="setup-key" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn ghost" id="setup-key-toggle" aria-label="แสดง key">ดู</button>
+          </span>
+        </label>
+        <div id="setup-key-msg" class="editor-msg" aria-live="polite"></div>
+        <div class="setup-actions">
+          <button type="button" class="btn ghost" id="setup-back-2">ย้อนกลับ</button>
+          <button type="button" class="btn primary" id="setup-validate">ตรวจสอบ key</button>
+        </div>
+      </div>
+
+      <!-- ขั้นที่ 3 -->
+      <div id="setup-step-3" class="setup-step" hidden>
+        <h2>3. เลือกโมเดล</h2>
+        <p class="muted">ถ้าไม่แน่ใจ ใช้ตัวที่มี ★ (เลือกไว้ให้แล้ว) — เป็นรุ่นที่ใช้ทดสอบในโครงงาน</p>
+        <label class="field">
+          <span class="label">โมเดล</span>
+          <select id="setup-model"></select>
+        </label>
+        <div id="setup-save-msg" class="editor-msg" aria-live="polite"></div>
+        <div class="setup-actions">
+          <button type="button" class="btn ghost" id="setup-back-3">ย้อนกลับ</button>
+          <button type="button" class="btn primary" id="setup-save">บันทึกและเริ่มใช้งาน</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= วิเคราะห์ ================= -->
+  <section id="page-analyze" class="page" hidden>
+    <div id="active-bar" class="active-bar"></div>
+
+    <div class="analyze-grid">
+      <div class="left-col">
+        <div class="panel samples">
+          <h2>ลองด้วยเรซูเม่ตัวอย่าง</h2>
+          <p class="muted small">กดได้เลยโดยไม่ต้องหาไฟล์เอง — ทั้ง 3 ใบสมัครตำแหน่ง <span id="sample-job-title">Backend Developer</span> เหมือนกัน จะได้เห็นว่าผลต่างกันอย่างไร</p>
+          <div id="sample-list" class="sample-list"></div>
+        </div>
+
+        <form id="analyze-form" class="panel" novalidate>
+          <h2>วิเคราะห์เรซูเม่ของคุณ</h2>
+
+          <label class="field">
+            <span class="label">ไฟล์เรซูเม่ (PDF ไม่เกิน 10 MB) <em class="req">*จำเป็น</em></span>
+            <input type="file" id="f-file" accept="application/pdf,.pdf" required>
+          </label>
+
+          <label class="field">
+            <span class="label">ตำแหน่งงาน</span>
+            <input type="text" id="f-job-title" placeholder="เช่น Junior Backend Developer">
+          </label>
+
+          <label class="field">
+            <span class="label">คณะ/สาขาที่รับ</span>
+            <input type="text" id="f-faculty-match" placeholder="เช่น วิศวกรรมคอมพิวเตอร์">
+          </label>
+
+          <label class="field">
+            <span class="label">รายละเอียดงาน <em class="req">*จำเป็น</em></span>
+            <textarea id="f-job-text" rows="7" placeholder="วางรายละเอียดงาน คุณสมบัติ และทักษะที่ต้องการ"></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button type="submit" id="btn-analyze" class="btn primary">วิเคราะห์</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="right-col">
+        <div id="analyze-status" class="status-box" aria-live="polite" hidden></div>
+        <div id="analyze-error" class="alert error" hidden></div>
+        <div id="result" class="result" aria-live="polite">
+          <div class="placeholder">
+            <p class="placeholder-title">ผลการวิเคราะห์จะแสดงที่นี่</p>
+            <p>กดเรซูเม่ตัวอย่างด้านซ้าย หรืออัปโหลด PDF พร้อมรายละเอียดงานแล้วกด “วิเคราะห์” —
+              ระบบจะให้คะแนนความเหมาะสม (0–100) คำแนะนำว่าควรรับหรือไม่ ทักษะที่พบ และจุดเด่นเทียบกับงาน</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ตั้งค่า ================= -->
+  <section id="page-settings" class="page" hidden>
+    <div class="settings-head">
+      <h2>ค่าย AI และโมเดล</h2>
+      <p class="muted">key เก็บไว้ในเครื่องนี้เท่านั้น เปลี่ยนแล้วมีผลทันที ไม่ต้องปิดเปิดโปรแกรมใหม่ — ค่ายที่มีป้าย “ใช้งานหลัก” คือค่ายที่ใช้วิเคราะห์</p>
+    </div>
+    <div id="settings-msg" class="alert" hidden></div>
+    <div id="provider-list" class="provider-list"></div>
+
+    <div class="settings-head section-gap">
+      <h2>อ่านสกิลจากกราฟิกในเรซูเม่</h2>
+      <p class="muted">เรซูเม่จาก Canva มักแสดงทักษะเป็นแถบกราฟ ดาว หรือโลโก้ ซึ่งอ่านเป็นตัวหนังสือไม่ได้ — เปิดไว้เพื่อให้ AI ดูภาพแล้วอ่านชื่อทักษะมาให้ (ใช้ Gemini เสมอ ไม่ว่าจะเลือกค่ายไหนไว้ด้านบน และใช้เวลาเพิ่มเฉพาะเรซูเม่ที่มีกราฟิก)</p>
+    </div>
+    <article class="provider visual-card">
+      <div class="provider-top">
+        <span class="p-name">อ่านสกิลจากกราฟิก</span>
+        <label class="switch">
+          <input type="checkbox" id="visual-enabled">
+          <span id="visual-enabled-label">เปิด</span>
+        </label>
+      </div>
+      <p class="muted small" id="visual-model"></p>
+      <div id="visual-note" class="alert warn" hidden></div>
+    </article>
+
+    <div class="settings-head section-gap">
+      <h2>เมื่อมีปัญหา</h2>
+      <p class="muted">ไฟล์ log บันทึกการทำงานของโปรแกรม (ไม่มี API key อยู่ในนั้น) — ส่งไฟล์ในโฟลเดอร์นี้ให้ผู้ดูแลเพื่อช่วยหาสาเหตุได้</p>
+    </div>
+    <div class="row-actions">
+      <button type="button" class="btn" id="open-logs">เปิดโฟลเดอร์ log</button>
+      <a class="btn" href="/manual" target="_blank" rel="noopener">เปิดคู่มือการใช้งาน</a>
+    </div>
+
+    <!-- ขั้นสูง: เชื่อมกับเว็บที่ deploy ไว้ (พับไว้ ปิดเป็นค่าเริ่มต้น) -->
+    <details id="advanced" class="advanced section-gap">
+      <summary>เชื่อมต่อกับเว็บไซต์ (ขั้นสูง)</summary>
+      <p class="muted">ให้เว็บ resumewise-analysis.vercel.app ส่งเรซูเม่มาวิเคราะห์ที่เครื่องนี้ผ่าน ngrok tunnel — ไม่จำเป็นสำหรับการใช้งานหน้าวิเคราะห์ในเครื่อง
+        เครื่องนี้ต้องเปิดโปรแกรมทิ้งไว้ระหว่างใช้งาน และทุกคนที่ใช้เว็บจะใช้ API key ของเครื่องนี้</p>
+      <div id="connect-msg" class="alert" hidden></div>
+      <article id="connect-card" class="provider connect">
+        <div class="provider-top">
+          <div class="connect-state">
+            <span class="dot" id="tunnel-dot" aria-hidden="true"></span>
+            <span class="p-name" id="tunnel-label">กำลังโหลด…</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="tunnel-enabled">
+            <span>ให้เว็บเชื่อมต่อ</span>
+          </label>
+        </div>
+        <div id="tunnel-error" class="alert error" hidden></div>
+
+        <dl class="p-info connect-info">
+          <div class="wide">
+            <dt>URL สาธารณะ (ใส่เป็น AI_SERVICE_URL บน Render)</dt>
+            <dd class="copy-row">
+              <span class="mono" id="tunnel-url">—</span>
+              <button type="button" class="btn" id="copy-url" disabled>คัดลอก</button>
+            </dd>
+          </div>
+          <div class="wide">
+            <dt>Token ลับ (ใส่เป็น AI_SERVICE_TOKEN บน Render)</dt>
+            <dd class="copy-row">
+              <span class="mono" id="service-token">—</span>
+              <button type="button" class="btn" id="copy-token">คัดลอก</button>
+              <button type="button" class="btn danger-ghost" id="regen-token">สร้างใหม่</button>
+            </dd>
+          </div>
+          <div class="wide">
+            <dt>ngrok authtoken</dt>
+            <dd class="copy-row">
+              <span class="mono" id="ngrok-masked">—</span>
+              <button type="button" class="btn" id="ngrok-edit">ใส่ authtoken</button>
+              <button type="button" class="btn danger-ghost" id="ngrok-delete" hidden>ลบ</button>
+            </dd>
+          </div>
+        </dl>
+
+        <div class="p-confirm" id="regen-confirm" hidden>
+          <span>สร้าง token ใหม่แล้ว token เดิมจะใช้ไม่ได้ทันที ต้องไปอัปเดต AI_SERVICE_TOKEN บน Render ด้วย</span>
+          <button type="button" class="btn danger" id="regen-yes">สร้างใหม่</button>
+          <button type="button" class="btn" id="regen-no">ยกเลิก</button>
+        </div>
+
+        <div class="editor" id="ngrok-editor" hidden>
+          <div class="key-row">
+            <label class="field">
+              <span class="label">วาง ngrok authtoken <span class="muted">(จาก dashboard.ngrok.com/get-started/your-authtoken)</span></span>
+              <span class="key-input">
+                <input type="password" class="mono" id="ngrok-input" autocomplete="off" spellcheck="false">
+                <button type="button" class="btn ghost" id="ngrok-toggle" aria-label="แสดง authtoken">ดู</button>
+              </span>
+            </label>
+            <button type="button" class="btn primary" id="ngrok-save">บันทึกและเชื่อมต่อ</button>
+            <button type="button" class="btn ghost" id="ngrok-cancel">ยกเลิก</button>
+          </div>
+        </div>
+      </article>
+    </details>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>Resume AI <span id="app-version"></span></span>
+  <a href="/manual" target="_blank" rel="noopener">วิธีใช้</a>
+  <button type="button" class="linklike" id="footer-logs">เปิดโฟลเดอร์ log</button>
+</footer>
+
+<template id="tpl-provider">
+  <article class="provider">
+    <div class="provider-top">
+      <label class="active-choice">
+        <input type="radio" name="active-provider" class="p-active">
+        <span>
+          <span class="p-name"></span>
+          <span class="p-active-tag">ใช้งานหลัก</span>
+        </span>
+      </label>
+      <span class="pill p-status"></span>
+    </div>
+    <dl class="p-info">
+      <div><dt>API key</dt><dd class="p-key mono"></dd></div>
+      <div><dt>โมเดล</dt><dd class="p-model mono"></dd></div>
+    </dl>
+    <div class="p-buttons">
+      <button type="button" class="btn p-btn-key"></button>
+      <button type="button" class="btn p-btn-model">เปลี่ยนโมเดล</button>
+      <button type="button" class="btn danger-ghost p-btn-delete">ลบ</button>
+    </div>
+    <div class="p-confirm" hidden>
+      <span>ลบ key และโมเดลของ <b class="p-name-inline"></b>?</span>
+      <button type="button" class="btn danger p-confirm-yes">ลบเลย</button>
+      <button type="button" class="btn p-confirm-no">ยกเลิก</button>
+    </div>
+    <div class="editor" hidden>
+      <p class="muted small p-key-help" hidden><span class="p-key-steps"></span> <a class="p-key-link" target="_blank" rel="noopener">เปิดหน้าขอ API key →</a></p>
+      <div class="key-row" hidden>
+        <label class="field">
+          <span class="label">วาง API key</span>
+          <span class="key-input">
+            <input type="password" class="mono p-key-input" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn ghost p-toggle-key" aria-label="แสดง key">ดู</button>
+          </span>
+        </label>
+        <button type="button" class="btn p-validate">ตรวจสอบ</button>
+      </div>
+      <div class="model-row" hidden>
+        <label class="field">
+          <span class="label">เลือกโมเดล <span class="muted">(★ = แนะนำ รุ่นที่ใช้ทดสอบในโครงงาน)</span></span>
+          <select class="p-model-select"></select>
+        </label>
+        <label class="check"><input type="checkbox" class="p-make-active"> ใช้ค่ายนี้เป็นค่ายหลัก</label>
+      </div>
+      <div class="editor-msg" aria-live="polite"></div>
+      <div class="editor-actions">
+        <button type="button" class="btn primary p-save" hidden>บันทึก</button>
+        <button type="button" class="btn ghost p-cancel">ยกเลิก</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

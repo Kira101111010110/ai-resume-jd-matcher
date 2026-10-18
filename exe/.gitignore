@@ -1,0 +1,19 @@
+# secrets
+.env
+# models (ใหญ่เกิน git — เก็บแยก)
+resume-jd-matcher-model/
+skill-extractor-model/
+skill-extractor-model-backup-current/
+# build outputs
+build/
+dist/
+Output/
+__pycache__/
+*.pyc
+# ข้อมูลขนาดใหญ่
+*.csv
+*.zip
+# venv ที่ใช้ build exe
+.venv*/
+# ไฟล์ที่ build.ps1 คัดลอกมาเตรียมแพ็ก (Tesseract ฯลฯ) — ไม่ commit binary
+desktop/build_assets/
