@@ -5,6 +5,12 @@ import pystray
 from PIL import Image, ImageDraw
 import uvicorn
 
+# ไฟล์นี้อยู่ใน installer/ ไม่ใช่ root ของ repo แล้ว ต้องเพิ่ม root เข้า sys.path เอง
+# ถึงจะ "from app import app" ด้านล่างได้ (app.py อยู่ที่ root เสมอ เพราะ Dockerfile/uvicorn
+# ต้องเจอมันที่ root — ดูรายละเอียดที่ README หัวข้อ "ดาวน์โหลดตัวติดตั้ง")
+# ไม่กระทบ "from path_utils import ..." ด้านล่าง เพราะไฟล์นั้นอยู่โฟลเดอร์เดียวกับไฟล์นี้อยู่แล้ว
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from path_utils import get_writable_config_path
 
 # หมายเหตุ: path ของโมเดล (resume-jd-matcher-model, skill-extractor-model) ถูกจัดการ

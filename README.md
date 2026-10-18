@@ -37,7 +37,7 @@
 | ต้องติดตั้ง Python เอง | ❌ ไม่ต้อง | ✅ ต้องมี Python 3.10+ |
 | ดูวิธีใช้ | หัวข้อ [ดาวน์โหลดตัวติดตั้ง](#-ดาวน์โหลดตัวติดตั้ง-windows-installer) ด้านล่าง | หัวข้อ [ขั้นตอนการติดตั้งและเริ่มต้นใช้งาน](#-ขั้นตอนการติดตั้งและเริ่มต้นใช้งาน-getting-started) ด้านล่าง |
 
-> **หมายเหตุ:** ไฟล์ส่วนใหญ่ใน repo นี้ (`app.py`, `test_full_pipeline_v4.py`, `llm_providers.py` ฯลฯ) เขียนขึ้นสำหรับรันด้วยคำสั่งในเครื่องโดยตรง (`python -m uvicorn ...`) ซึ่งเป็นวิธีหลักที่ใช้พัฒนาและทดสอบระบบมาตลอด ส่วน `launcher.py` และตัวติดตั้ง `.exe` เป็นสิ่งที่เพิ่มเข้ามาภายหลัง เพื่อให้คนที่ไม่ต้องการยุ่งกับ Python เปิดใช้งาน API ได้สะดวกขึ้นเท่านั้น ไม่ได้แทนที่วิธีเดิม — ถ้าจะพัฒนาต่อหรือแก้ไขโค้ด แนะนำให้ใช้วิธี **รันจากซอร์สโค้ด** ตามปกติ
+> **หมายเหตุ:** ไฟล์ส่วนใหญ่ใน repo นี้ (`app.py`, `test_full_pipeline_v4.py`, `llm_providers.py` ฯลฯ) เขียนขึ้นสำหรับรันด้วยคำสั่งในเครื่องโดยตรง (`python -m uvicorn ...`) ซึ่งเป็นวิธีหลักที่ใช้พัฒนาและทดสอบระบบมาตลอด ส่วน `installer/launcher.py` และตัวติดตั้ง `.exe` เป็นสิ่งที่เพิ่มเข้ามาภายหลัง เพื่อให้คนที่ไม่ต้องการยุ่งกับ Python เปิดใช้งาน API ได้สะดวกขึ้นเท่านั้น ไม่ได้แทนที่วิธีเดิม — ถ้าจะพัฒนาต่อหรือแก้ไขโค้ด แนะนำให้ใช้วิธี **รันจากซอร์สโค้ด** ตามปกติ (ไฟล์ core ของ service เช่น `app.py` ยังอยู่ที่ root ของ repo เหมือนเดิมเสมอ เพราะ `Dockerfile` รัน `uvicorn app:app` ตรงๆ จาก root)
 
 ---
 
@@ -49,14 +49,24 @@
 
 ตัวติดตั้งนี้รวม Python, SBERT, spaCy และ dependency ทั้งหมดไว้ให้แล้ว เปิดใช้งานผ่าน system tray icon ไม่ต้องเปิด terminal เอง — ครั้งแรกที่เปิดแอพจะมีหน้าต่างให้กรอก API Key (Gemini / OpenAI / Claude เลือกอย่างน้อย 1 ตัว) โดย key จะถูกเก็บไว้ในเครื่องเท่านั้น
 
+### ไฟล์เบื้องหลังตัวติดตั้ง (`installer/`)
+
+โฟลเดอร์นี้มีเฉพาะไฟล์ที่ใช้ตอนแพ็คเป็น `.exe` เท่านั้น ไม่ใช่ core ของ service (ไม่ถูก `app.py`/`Dockerfile` อ้างอิงกลับ):
+
+| ไฟล์ | ใช้ทำอะไร |
+|---|---|
+| `installer/launcher.py` | entry point ของ `.exe` — เปิดหน้าต่างกรอก API key ครั้งแรก, โหลดโมเดล, รัน `app.py` ผ่าน uvicorn ใน background thread, แสดงเป็นไอคอนใน system tray |
+| `installer/path_utils.py` | helper หา path ของไฟล์ config (`.env` ที่ผู้ใช้กรอก API key) ให้ถูกต้องทั้งตอนรันแบบ `.py` ปกติและตอนแพ็คเป็น `.exe` (ใช้ `sys._MEIPASS` ของ PyInstaller) |
+
+**สำคัญถ้าจะ build `.exe` ใหม่:** entry point เปลี่ยนจาก `launcher.py` เป็น `installer/launcher.py` แล้ว — ไฟล์ `.spec` ของ PyInstaller (ไม่ได้อยู่ใน repo นี้ ดูแลแยกต่างหาก) ต้องแก้ path ของ entry point ให้ตรงด้วย ไม่งั้น build จะหา `launcher.py` ที่ root ไม่เจอ
+
 ---
 
 ## 🛠️ โครงสร้างไฟล์ในโปรเจกต์ (Project Structure)
 
 ```text
 ├── app.py                          # FastAPI service หลัก (endpoint /analyze, /health)
-├── launcher.py                     # ตัวรัน app.py แบบ system tray (สำหรับแพ็คเป็น .exe)
-├── path_utils.py                   # Helper หา path โมเดล/config ทั้งตอนรันแบบ .py และ .exe
+├── installer/                      # ไฟล์เฉพาะตัวติดตั้ง .exe (launcher.py, path_utils.py) ดูรายละเอียดด้านล่าง
 ├── pdf_extraction.py                # ระบบสกัดข้อความจาก PDF + OCR fallback + ดึงสกิลจากกราฟิก (visual skill extraction)
 ├── llm_providers.py                 # ตัวเชื่อมต่อและจัดการโมเดล LLM หลายค่าย + extract_visual_skills (Gemini vision)
 ├── clean_skill_dictionary.py        # สคริปต์ทำความสะอาดพจนานุกรมทักษะ (2-tier filter)
