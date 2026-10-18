@@ -1,18 +1,16 @@
 """
-run_comparison.py
-------------------
+run_comparison_openai_retest.py
+-------------------------------
+เหมือน run_comparison.py แต่ตั้งค่าให้รันซ้ำเฉพาะ OpenAI (gpt-5.6-luna) — ใช้คู่กับ merge_openai_retest.py
+
 รัน resume ทุกใบ x job ทุกตำแหน่ง ผ่าน full_analysis_pipeline()
 เปรียบเทียบผลลัพธ์ข้าม LLM provider (Gemini / OpenAI / Claude)
 ผลลัพธ์ export เป็น CSV ให้เปิดดูใน Excel ได้ทันที
 
-วิธีใช้:
-1. วางไฟล์นี้ไว้ในโฟลเดอร์เดียวกับ test_full_pipeline_v4.py และ llm_providers.py
-   (ต้อง import full_analysis_pipeline ได้)
-2. วางโฟลเดอร์ synthetic_resumes/ (ที่แตกจาก zip) ไว้ในโฟลเดอร์เดียวกันด้วย
-   หรือแก้ RESUME_DIR / JOB_JSON_PATH ด้านล่างให้ชี้ path ที่ถูกต้อง
-3. แก้ PROVIDERS_TO_TEST ให้เหลือแค่ provider ที่มี API key จริง (ตอนนี้มีแค่ gemini)
-4. รัน: python run_comparison.py
-5. ผลลัพธ์จะถูกเขียนไปที่ comparison_results.csv ในโฟลเดอร์เดียวกัน
+วิธีใช้ (ต้องรันจาก root ของ repo เพราะ test_full_pipeline_v4.py โหลดโมเดลด้วย path สัมพัทธ์):
+1. แก้ PROVIDERS_TO_TEST ให้เหลือแค่ provider ที่มี API key จริง
+2. รัน: python research/run_comparison_openai_retest.py
+3. ผลลัพธ์จะถูกเขียนไปที่ research/comparison_results_openai_retest.csv
 """
 
 import csv
@@ -21,15 +19,18 @@ import time
 import traceback
 from pathlib import Path
 
-# ---- แก้ import ให้ตรงกับไฟล์จริงของคุณ ----
-from test_full_pipeline_v4 import full_analysis_pipeline
+import sys
+
+# สคริปต์อยู่ใน research/ — import โค้ด AI และอ่าน synthetic_resumes/ จาก root ของ repo
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
+from test_full_pipeline_v4 import full_analysis_pipeline  # noqa: E402
 
 # ---------------- ตั้งค่า ----------------
-BASE_DIR = Path(__file__).parent
 RESUME_DIR = BASE_DIR / "synthetic_resumes" / "txt"
 JOB_JSON_PATH = BASE_DIR / "synthetic_resumes" / "job_descriptions.json"
 MANIFEST_PATH = BASE_DIR / "synthetic_resumes" / "manifest.csv"
-OUTPUT_CSV = BASE_DIR / "comparison_results_openai_retest.csv"
+OUTPUT_CSV = Path(__file__).resolve().parent / "comparison_results_openai_retest.csv"
 
 # รอบนี้ทดสอบแค่ OpenAI เพราะเปลี่ยนโมเดลจาก gpt-4o-mini เป็น gpt-5.6-luna
 # ของเดิม (gemini/claude) ไม่ต้องรันซ้ำ เพราะโมเดลไม่ได้เปลี่ยน

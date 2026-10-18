@@ -5,7 +5,7 @@ clean_skill_dictionary.py
 (dictionary ที่ใช้เทรน skill-extractor-model) แทนการ patch แค่ตอน runtime
 
 วิธีใช้:
-    python clean_skill_dictionary.py --input raw_skills.txt --output cleaned_patterns.jsonl
+    python skill_dictionary/clean_skill_dictionary.py --input raw_skills.txt --output cleaned_patterns.jsonl
 
 Input format: ไฟล์ text ธรรมดา 1 skill ต่อ 1 บรรทัด
     (ดึงมาจาก resume_data.csv['skills'] + all_job_post.csv['job_skill_set']

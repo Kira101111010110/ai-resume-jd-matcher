@@ -3,14 +3,18 @@
 ใช้ resume/job เดิมทุกครั้ง เพื่อให้เห็นว่าแต่ละเจ้า "ตอบต่างกันแค่ไหน" กับ input เดียวกัน
 
 วิธีใช้:
-    python compare_models.py
+    python research/compare_models.py
 
 ถ้า provider ไหนยังไม่ได้ตั้ง API key ไว้ (ใน environment variable) จะข้ามไปเฉยๆ
 พร้อมบอกว่าต้องตั้ง env var ตัวไหนเพิ่ม ไม่ทำให้ script ทั้งชุดพัง
 """
 
 import os
-from llm_providers import analyze_storytelling
+import sys
+
+# สคริปต์อยู่ใน research/ — import llm_providers จาก root ของ repo
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from llm_providers import analyze_storytelling  # noqa: E402
 
 test_resume = """
 Experienced backend developer with 5 years building scalable systems.

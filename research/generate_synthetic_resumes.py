@@ -22,11 +22,14 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-FONT_DIR = "/home/claude/fonts"
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# วางฟอนต์ Sarabun-Regular.ttf / Sarabun-Bold.ttf (Google Fonts) ไว้ที่ fonts/ ของ repo ก่อนรัน
+FONT_DIR = os.path.join(REPO_ROOT, "fonts")
 pdfmetrics.registerFont(TTFont("Sarabun", os.path.join(FONT_DIR, "Sarabun-Regular.ttf")))
 pdfmetrics.registerFont(TTFont("Sarabun-Bold", os.path.join(FONT_DIR, "Sarabun-Bold.ttf")))
 
-OUT_DIR = "/home/claude/synthetic_resumes"
+OUT_DIR = os.path.join(REPO_ROOT, "synthetic_resumes")
 TXT_DIR = os.path.join(OUT_DIR, "txt")
 PDF_DIR = os.path.join(OUT_DIR, "pdf")
 

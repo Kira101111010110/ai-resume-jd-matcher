@@ -7,10 +7,10 @@ rebuild_entity_ruler.py
 ไม่มี gradient descent, ไม่ต้องใช้ GPU, ไม่ต้องมี validation set
 รันไม่กี่วินาทีก็เสร็จ ต่างจาก SBERT fine-tune ที่ต้องเทรนจริงบน GPU
 
-วิธีใช้:
-    python rebuild_entity_ruler.py \
-        --hard-patterns cleaned_hard.jsonl \
-        --soft-patterns cleaned_soft.jsonl \
+วิธีใช้ (จาก root ของ repo):
+    python skill_dictionary/rebuild_entity_ruler.py \
+        --hard-patterns skill_dictionary/cleaned_hard_final2.jsonl \
+        --soft-patterns skill_dictionary/cleaned_soft.jsonl \
         --output ./skill-extractor-model \
         --base-model en_core_web_lg
 

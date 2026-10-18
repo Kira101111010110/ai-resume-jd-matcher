@@ -3,16 +3,16 @@
 โดยแทนที่เฉพาะแถวที่ provider == "openai" ด้วยผลใหม่ ส่วน gemini/claude คงเดิมไว้ไม่แตะ
 
 วิธีใช้:
-    1. รัน run_comparison.py ก่อน (ตอนนี้ config ให้ทดสอบแค่ openai แล้ว)
+    1. รัน research/run_comparison_openai_retest.py ก่อน
        จะได้ไฟล์ comparison_results_openai_retest.csv
-    2. รัน: python merge_openai_retest.py
+    2. รัน: python research/merge_openai_retest.py
     3. ได้ไฟล์ comparison_results_merged.csv ที่รวมผลล่าสุดครบทั้ง 3 provider
 """
 
 import pandas as pd
 from pathlib import Path
 
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).resolve().parent  # CSV ทั้งหมดอยู่ใน research/
 OLD_CSV = BASE_DIR / "comparison_results.csv"                    # ผลเดิม (gemini/openai เก่า/claude)
 NEW_OPENAI_CSV = BASE_DIR / "comparison_results_openai_retest.csv"  # ผล openai รอบใหม่ (gpt-5.6-luna)
 MERGED_CSV = BASE_DIR / "comparison_results_merged.csv"
