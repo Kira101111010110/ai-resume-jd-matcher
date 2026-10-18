@@ -1,0 +1,18 @@
+﻿Resume AI — ซอฟต์แวร์ของบุคคลที่สามที่แพ็กมาด้วย / Third-party software notices
+=============================================================================
+
+Tesseract OCR (โฟลเดอร์ _internal\tesseract\)
+  ใช้อ่านข้อความจากภาพในไฟล์ PDF (OCR fallback) รวมถึงไฟล์ภาษา tha/eng/osd.traineddata
+  Copyright Google Inc. และผู้ร่วมพัฒนา Tesseract
+  Licensed under the Apache License, Version 2.0 — ดูข้อความเต็มที่ _internal\tesseract\LICENSE-Tesseract.txt
+  หรือ http://www.apache.org/licenses/LICENSE-2.0
+  Source: https://github.com/tesseract-ocr/tesseract
+  Windows build (tesseract.exe + DLL): https://github.com/UB-Mannheim/tesseract
+  ไฟล์ภาษา: https://github.com/tesseract-ocr/tessdata (Apache 2.0)
+
+แพ็กเกจ Python (โฟลเดอร์ _internal\)
+  PyTorch (BSD-3-Clause), sentence-transformers (Apache 2.0), transformers (Apache 2.0),
+  spaCy (MIT), FastAPI (MIT), uvicorn (BSD-3-Clause), pdfplumber (MIT), PyMuPDF (AGPL-3.0),
+  pytesseract (Apache 2.0), Pillow (MIT-CMU), google-generativeai (Apache 2.0), openai (Apache 2.0),
+  anthropic (MIT), pystray (LGPL-3.0), ngrok (MIT/Apache 2.0) และ dependency ของแพ็กเกจเหล่านี้
+  — license ของแต่ละแพ็กเกจอยู่ในโฟลเดอร์ *.dist-info ภายใน _internal\

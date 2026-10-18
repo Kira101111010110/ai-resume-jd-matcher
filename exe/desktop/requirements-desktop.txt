@@ -1,0 +1,5 @@
+# ของที่ exe (desktop/) ต้องใช้เพิ่มจาก ../requirements.txt
+-r ../requirements.txt
+python-multipart   # FastAPI รับไฟล์อัปโหลด (/analyze-file)
+pystray            # ไอคอน system tray
+ngrok              # tunnel ไปเว็บที่ deploy ไว้ (ส่วนขั้นสูง)

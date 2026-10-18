@@ -1,0 +1,15 @@
+sentence-transformers
+spacy
+google-generativeai
+openai
+anthropic
+fastapi
+uvicorn
+pydantic
+pandas
+pdfplumber
+requests
+pymupdf
+pytesseract
+Pillow
+python-dotenv
